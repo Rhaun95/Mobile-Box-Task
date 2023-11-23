@@ -11,27 +11,25 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Driving()));
-                    },
-                    child: Text("Start"))
-              ],
-            ),
+    return Center(
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Driving()));
+                  },
+                  child: Text("Start"))
+            ],
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            ElevatedButton(onPressed: () => exit(0), child: const Text("Exit"))
-          ]),
+        ),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          ElevatedButton(onPressed: () => exit(0), child: const Text("Exit"))
         ]),
-      ),
+      ]),
     );
   }
 }
