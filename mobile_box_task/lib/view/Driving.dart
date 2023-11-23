@@ -10,21 +10,29 @@ class Driving extends StatefulWidget {
 }
 
 class _DrivingState extends State<Driving> {
-  late List accelerometer;
-  late List gyroscope;
+  List<double> accelerometer = [0.0, 0.0, 0.0];
+  List<double> gyroscope = [0.0, 0.0, 0.0];
 
   @override
   Widget build(BuildContext context) {
     // set the values of accelerometer and gyroscope
     accelerometerEvents.listen((AccelerometerEvent e) {
       setState(() {
-        accelerometer = <double>[e.x, e.y, e.z];
+        accelerometer = [
+          double.parse(e.x.toStringAsFixed(3)),
+          double.parse(e.y.toStringAsFixed(3)),
+          double.parse(e.z.toStringAsFixed(3)),
+        ];
       });
     });
 
     gyroscopeEvents.listen((GyroscopeEvent e) {
       setState(() {
-        gyroscope = <double>[e.x, e.y, e.z];
+        gyroscope = [
+          double.parse(e.x.toStringAsFixed(3)),
+          double.parse(e.y.toStringAsFixed(3)),
+          double.parse(e.z.toStringAsFixed(3)),
+        ];
       });
     });
 
@@ -78,6 +86,21 @@ class _DrivingState extends State<Driving> {
                           child: Center(
                             child: Text('Gas'),
                           )))),
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "accelerometer: $accelerometer",
+                      style: TextStyle(fontSize: 14, color: Colors.red),
+                    ),
+                    Text(
+                      "gyroscope: $gyroscope",
+                      style: TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ));
