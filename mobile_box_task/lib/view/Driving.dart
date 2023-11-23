@@ -33,22 +33,53 @@ class _DrivingState extends State<Driving> {
       DeviceOrientation.landscapeRight,
     ]);
 
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              accelerometer.toString(),
-              style: TextStyle(fontSize: 20, color: Colors.red),
-            ),
-            Text(
-              gyroscope.toString(),
-              style: TextStyle(fontSize: 20, color: Colors.blue),
-            ),
-          ],
-        ),
-      ),
-    );
+    return Directionality(
+        textDirection: TextDirection.ltr,
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Positioned(
+                  left: 16,
+                  bottom: 16,
+                  child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueGrey,
+                        padding: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: const SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Center(
+                            child: Text('Break'),
+                          )))),
+              Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueGrey,
+                        padding: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: const SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Center(
+                            child: Text('Gas'),
+                          )))),
+            ],
+          ),
+        ));
   }
 }
