@@ -11,7 +11,13 @@ class MBTApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Home(),
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          title: const Center(child: Text('Startseite Moblie Box Task')),
+        ),
+        body: const Home(),
+      ),
     );
   }
 }
