@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/widget/Button.dart';
 import 'package:sensors/sensors.dart';
 
 class Driving extends StatefulWidget {
@@ -49,43 +50,17 @@ class _DrivingState extends State<Driving> {
               Positioned(
                   left: 16,
                   bottom: 16,
-                  child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blueGrey,
-                        padding: const EdgeInsets.all(16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: const SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Center(
-                            child: Text('Break'),
-                          )))),
+                  child: Button(
+                    onPressed: () {},
+                    text: "Break",
+                  )),
               Positioned(
                   right: 16,
                   bottom: 16,
-                  child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blueGrey,
-                        padding: const EdgeInsets.all(16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: const SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Center(
-                            child: Text('Gas'),
-                          )))),
+                  child: Button(
+                    onPressed: () {},
+                    text: "Gas",
+                  )),
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
