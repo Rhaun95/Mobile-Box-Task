@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/view/Driving.dart';
+import 'package:mobile_box_task/view/InstructionPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
 class Home extends StatelessWidget {
@@ -17,8 +17,10 @@ class Home extends StatelessWidget {
             children: [
               Button(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Driving()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const InstructionPage()));
                   },
                   text: "Start")
             ],
