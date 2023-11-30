@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:sensors/sensors.dart';
 
@@ -92,7 +93,12 @@ class _DrivingState extends State<Driving> {
                     left: 16,
                     top: 16,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CompeletPage()));
+                      },
                       icon:
                           const Icon(Icons.cancel_outlined, color: Colors.blue),
                     ),
