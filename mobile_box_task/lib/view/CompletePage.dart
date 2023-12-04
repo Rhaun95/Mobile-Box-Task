@@ -19,23 +19,34 @@ class CompeletPage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               const Text(
-                "Compelet",
+                "Complete",
+                style: TextStyle(fontSize: 40, color: Colors.blue),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Querfehler: 123 ",
                 style: TextStyle(fontSize: 24, color: Colors.blue),
               ),
-              const SizedBox(height: 40),
-              const Text(
-                "Was hast du bis jetzt gemacht oder so ",
-                style: TextStyle(fontSize: 14, color: Colors.blue),
+              Text(
+                "Längsfehler: 21",
+                style: TextStyle(fontSize: 24, color: Colors.blue),
               ),
               const SizedBox(height: 10),
-              Button(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Home()));
-                  },
-                  text: "Back To Home Page"),
-              const SizedBox(height: 10),
-              Button(onPressed: () => exit(0), text: "Exit"),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Home()));
+                      },
+                      text: "Back To Home Page"),
+                  const SizedBox(width: 50),
+                  Button(onPressed: () => exit(0), text: "Exit"),
+                ],
+              )
             ],
           ),
         ),

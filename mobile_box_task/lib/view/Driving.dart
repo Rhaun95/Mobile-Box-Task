@@ -20,6 +20,12 @@ class _DrivingState extends State<Driving> {
   int count = 3;
   late Timer _timer;
 
+  @override
+  void initState() {
+    super.initState();
+    startCountdown();
+  }
+
   void startCountdown() {
     const oneSecond = Duration(seconds: 1);
     _timer = Timer.periodic(oneSecond, (timer) {
@@ -32,12 +38,6 @@ class _DrivingState extends State<Driving> {
         }
       });
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    startCountdown();
   }
 
   @override
@@ -83,7 +83,7 @@ class _DrivingState extends State<Driving> {
               Center(
                 child: Text(
                   '$count',
-                  style: const TextStyle(fontSize: 30, color: Colors.blue),
+                  style: const TextStyle(fontSize: 60, color: Colors.blue),
                 ),
               ),
             if (_isReady)
