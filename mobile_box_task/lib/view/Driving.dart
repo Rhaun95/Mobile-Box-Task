@@ -6,9 +6,10 @@ import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:sensors/sensors.dart';
 
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
 class Driving extends StatefulWidget {
   const Driving({Key? key}) : super(key: key);
-
   @override
   State<Driving> createState() => _DrivingState();
 }
@@ -19,11 +20,24 @@ class _DrivingState extends State<Driving> {
   bool _isReady = false;
   int count = 3;
   late Timer _timer;
+  late IO.Socket socket;
 
   @override
   void initState() {
     super.initState();
     startCountdown();
+
+    socket = IO.io('http://localhost:3000', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': true,
+    });
+
+    socket.on('connect', (_) {
+      print('connect');
+      socket.emit('message', 'hello');
+    });
+
+    socket.connect();
   }
 
   void startCountdown() {
@@ -43,6 +57,7 @@ class _DrivingState extends State<Driving> {
   @override
   void dispose() {
     _timer.cancel(); // Stopp den Timer, wenn das Widget entsorgt wird
+    socket.disconnect();
     super.dispose();
   }
 
@@ -107,7 +122,9 @@ class _DrivingState extends State<Driving> {
                     left: 16,
                     bottom: 16,
                     child: Button(
-                      onPressed: () {},
+                      onPressed: () {
+                        socket.emit('brake button pressed', 'hello');
+                      },
                       text: "Break",
                     ),
                   ),
@@ -115,7 +132,9 @@ class _DrivingState extends State<Driving> {
                     right: 16,
                     bottom: 16,
                     child: Button(
-                      onPressed: () {},
+                      onPressed: () {
+                        socket.emit('gas button has been pressed', 'hello');
+                      },
                       text: "Gas",
                     ),
                   ),
