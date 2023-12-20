@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 var speed = 24;
+var position = 0;
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
@@ -41,6 +42,11 @@ io.on("connection", (socket) => {
     console.log("brake pressed");
     speed -= 1;
     socket.emit("new number", speed);
+  });
+
+  socket.on("boxPosition", function (data) {
+    console.log("Received data from Flutter:", data);
+    socket.emit("new number", data);
   });
 });
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ class Driving extends StatefulWidget {
 class _DrivingState extends State<Driving> {
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
+  int boxPosition = 0;
   bool _isReady = false;
   int count = 3;
   late Timer _timer;
@@ -30,6 +32,21 @@ class _DrivingState extends State<Driving> {
     socket = IO.io('http://localhost:3000', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
+    });
+
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      setState(() {
+        if (-10 <= boxPosition && boxPosition <= 10) {
+          if (boxPosition < 0) {
+            boxPosition = (event.y).floor();
+          } else {
+            boxPosition = (event.y).ceil();
+          }
+        } else {
+          boxPosition = 0;
+        }
+        socket.emit('boxPosition', boxPosition);
+      });
     });
 
     socket.on('connect', (_) {
@@ -63,27 +80,6 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
-    // set the values of accelerometer and gyroscope
-    accelerometerEvents.listen((AccelerometerEvent e) {
-      setState(() {
-        accelerometer = [
-          double.parse(e.x.toStringAsFixed(3)),
-          double.parse(e.y.toStringAsFixed(3)),
-          double.parse(e.z.toStringAsFixed(3)),
-        ];
-      });
-    });
-
-    gyroscopeEvents.listen((GyroscopeEvent e) {
-      setState(() {
-        gyroscope = [
-          double.parse(e.x.toStringAsFixed(3)),
-          double.parse(e.y.toStringAsFixed(3)),
-          double.parse(e.z.toStringAsFixed(3)),
-        ];
-      });
-    });
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -143,11 +139,7 @@ class _DrivingState extends State<Driving> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          "accelerometer: $accelerometer",
-                          style: TextStyle(fontSize: 14, color: Colors.red),
-                        ),
-                        Text(
-                          "gyroscope: $gyroscope",
+                          "Steering: $boxPosition",
                           style: TextStyle(fontSize: 14, color: Colors.blue),
                         ),
                       ],
