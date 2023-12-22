@@ -6,6 +6,18 @@ var server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
+var livereload = require("livereload");
+var connectLiveReload = require("connect-livereload");
+
+const liveReloadServer = livereload.createServer();
+liveReloadServer.server.once("connection", () => {
+  setTimeout(() => {
+    liveReloadServer.refresh("/");
+  }, 1);
+});
+
+app.use(connectLiveReload());
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
