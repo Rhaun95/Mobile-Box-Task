@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/styles/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <main>
+      <ul id="messages"></ul>
+      <input
+        id="brake"
+        type="button"
+        name="brake"
+        value="Brake"
+        style="width: 50px; height: 50px"
+      />
+      <input class="" id="gas" type="button" name="gas" value="Gas" />
+      <div class=""></div>
+      <div class="">Summe : <span id="sum">0</span></div>
+      <div class="">Steering : <span id="steer">0</span></div>
+
+      <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+      </form>
+    </main>
+  </body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+
+  var messages = document.getElementById("messages");
+  var form = document.getElementById("form");
+  var input = document.getElementById("input");
+  var gas = document.getElementById("gas");
+  var brake = document.getElementById("brake");
+  var sum = document.getElementById("sum");
+
+  gas.addEventListener("click", function (e) {
+    console.log("gas");
+    socket.emit("gas button has been pressed");
+  });
+
+  brake.addEventListener("click", function (e) {
+    console.log("brake");
+    socket.emit("brake button pressed");
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (input.value) {
+      socket.emit("chat message", input.value);
+      input.value = "";
+    }
+  });
+
+  socket.on("chat message", function (msg) {
+    var item = document.createElement("li");
+    item.textContent = msg;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  });
+
+  socket.on("new number", function (speed) {
+    sum.textContent = speed;
+  });
+
+  socket.on("box", function (position) {
+    steer.boxPosition = position;
+  });
+</script>

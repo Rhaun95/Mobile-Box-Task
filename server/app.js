@@ -1,16 +1,20 @@
-var express = require("express"); //Aufruf von express module
+const express = require("express");
+const path = require("path");
 var app = express(); //Rückgabe von express in Variable speichern
 var http = require("http");
 var server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-var speed = 24;
-var position = 0;
+app.set("view engine", "ejs");
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.render("index");
 });
+
+var speed = 24;
+var position = 0;
 
 io.on("connection", (socket) => {
   setInterval(() => {
@@ -55,6 +59,6 @@ io.emit("some event", {
   otherProperty: "other value",
 }); // This will emit the event to all connected sockets
 
-server.listen(3000, () => {
-  console.log("listening on *:3000");
+server.listen(3001, () => {
+  console.log("listening on *:3001");
 });
