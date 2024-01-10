@@ -6,24 +6,41 @@
     <link href="/styles/style.css" rel="stylesheet" />
   </head>
 
-  <body>
-    <main>
+  <body class="overflow-hidden">
+    <main
+      class="w-screen h-screen bg-gradient-to-br from-purple-800 to-violet-950 flex justify-center items-center"
+    >
       <ul id="messages"></ul>
       <input
+        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
         id="brake"
         type="button"
         name="brake"
         value="Brake"
-        style="width: 50px; height: 50px"
       />
-      <input class="" id="gas" type="button" name="gas" value="Gas" />
-      <div class=""></div>
-      <div class="">Summe : <span id="sum">0</span></div>
-      <div class="">Steering : <span id="steer">0</span></div>
+      <input
+        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
+        id="gas"
+        type="button"
+        name="gas"
+        value="Gas"
+      />
+      <div
+        class="w-[340px] h-[340px] border-8 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+      ></div>
 
-      <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
-      </form>
+      <div
+        class="bg-gradient-to-b from-sky-600 to bg-cyan-400 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
+        id="drivingBox"
+      ></div>
+      <span
+        id="sum"
+        class="font-bold text-6xl text-gray-950 stroke-white stroke-2 absolute"
+      ></span>
+
+      <div
+        class="w-[800px] h-[800px] border-8 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+      ></div>
     </main>
   </body>
 </html>
@@ -33,28 +50,59 @@
   var socket = io();
 
   var messages = document.getElementById("messages");
-  var form = document.getElementById("form");
-  var input = document.getElementById("input");
   var gas = document.getElementById("gas");
   var brake = document.getElementById("brake");
   var sum = document.getElementById("sum");
+  var drivingBox = document.getElementById("drivingBox");
+  var intervalId = null; // Variable, um das Intervall zu speichern
+  var speed = 0; // Startgeschwindigkeit
+  var accelerationFactor = 50; // Startbeschleunigungsfaktor
 
-  gas.addEventListener("click", function (e) {
-    console.log("gas");
-    socket.emit("gas button has been pressed");
-  });
-
-  brake.addEventListener("click", function (e) {
-    console.log("brake");
-    socket.emit("brake button pressed");
-  });
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (input.value) {
-      socket.emit("chat message", input.value);
-      input.value = "";
+  function increaseSpeed() {
+    if (speed <= 1200) {
+      speed += accelerationFactor;
+      if (speed > 1200) speed = 1200; // Begrenzen Sie die Geschwindigkeit auf 200
+      socket.emit("gas button has been pressed", speed);
+      accelerationFactor *= 0.95;
+      if (accelerationFactor < 1) accelerationFactor = 1;
     }
+  }
+
+  function decreaseSpeed() {
+    if (speed > 0) {
+      // Überprüfen Sie, ob die Geschwindigkeit größer als 0 ist
+      speed -= accelerationFactor;
+      if (speed < 0) speed = 0;
+      socket.emit("brake button pressed", speed);
+      accelerationFactor *= 0.95;
+      if (accelerationFactor < 1) accelerationFactor = 1;
+    }
+  }
+
+  function updateBoxSize(size) {
+    // Nur aktualisieren, wenn die Geschwindigkeit kleiner oder gleich 200 ist
+    if (speed <= 1200) {
+      drivingBox.style.width = size * 1.1 + "px";
+      drivingBox.style.height = size * 1.1 + "px";
+    }
+  }
+
+  gas.addEventListener("mousedown", function () {
+    intervalId = setInterval(increaseSpeed, 1); // Beschleunige alle 50 Millisekunden
+  });
+
+  gas.addEventListener("mouseup", function () {
+    clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
+    accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
+  });
+
+  brake.addEventListener("mousedown", function () {
+    intervalId = setInterval(decreaseSpeed, 1); // Verlangsame alle 50 Millisekunden
+  });
+
+  brake.addEventListener("mouseup", function () {
+    clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
+    accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
   });
 
   socket.on("chat message", function (msg) {
@@ -64,8 +112,11 @@
     window.scrollTo(0, document.body.scrollHeight);
   });
 
-  socket.on("new number", function (speed) {
-    sum.textContent = speed;
+  socket.on("new number", function (currentSpeed) {
+    speed = Math.min(Math.max(currentSpeed, 0), 1200);
+    sum.textContent = Math.floor(speed / 6) + " Km/h";
+    var boxSize = speed;
+    updateBoxSize(boxSize);
   });
 
   socket.on("box", function (position) {

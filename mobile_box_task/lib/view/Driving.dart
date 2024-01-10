@@ -1,57 +1,40 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_box_task/view/CompletePage.dart';
-import 'package:mobile_box_task/widget/Button.dart';
-import 'package:sensors/sensors.dart';
-
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Driving extends StatefulWidget {
   const Driving({Key? key}) : super(key: key);
+
   @override
-  State<Driving> createState() => _DrivingState();
+  _DrivingState createState() => _DrivingState();
 }
 
 class _DrivingState extends State<Driving> {
-  List<double> accelerometer = [0.0, 0.0, 0.0];
-  List<double> gyroscope = [0.0, 0.0, 0.0];
-  int boxPosition = 0;
-  bool _isReady = false;
-  int count = 3;
   late Timer _timer;
   late IO.Socket socket;
+  int speed = 0;
+  int count = 3;
+  double accelerationFactor = 50.0;
+  bool isGasPressed = false;
+  bool isBrakePressed = false;
+  bool _isReady = false;
 
   @override
   void initState() {
     super.initState();
     startCountdown();
-
-    socket = IO.io('http://localhost:3000', <String, dynamic>{
+    socket = IO.io('http://localhost:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
 
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        if (-10 <= boxPosition && boxPosition <= 10) {
-          if (boxPosition < 0) {
-            boxPosition = (event.y).floor();
-          } else {
-            boxPosition = (event.y).ceil();
-          }
-        } else {
-          boxPosition = 0;
-        }
-        socket.emit('boxPosition', boxPosition);
-      });
+    socket.onConnect((_) {
+      print('Connected to server');
     });
 
-    socket.on('connect', (_) {
-      print('connect');
-      socket.emit('message', 'hello');
+    socket.onDisconnect((_) {
+      print('Disconnected from server');
     });
 
     socket.connect();
@@ -73,9 +56,34 @@ class _DrivingState extends State<Driving> {
 
   @override
   void dispose() {
-    _timer.cancel(); // Stopp den Timer, wenn das Widget entsorgt wird
+    _timer.cancel();
     socket.disconnect();
     super.dispose();
+  }
+
+  Timer? gasTimer;
+  Timer? brakeTimer;
+
+  void increaseSpeed() {
+    if (speed <= 200) {
+      speed += accelerationFactor.toInt();
+      if (speed > 200) speed = 200;
+      socket.emit("gas button has been pressed", speed);
+      accelerationFactor *= 0.95;
+      if (accelerationFactor < 1) accelerationFactor = 1;
+      setState(() {});
+    }
+  }
+
+  void decreaseSpeed() {
+    if (speed >= 0) {
+      speed -= accelerationFactor.toInt();
+      if (speed < 0) speed = 0;
+      socket.emit("brake button pressed", speed);
+      accelerationFactor *= 0.95;
+      if (accelerationFactor < 1) accelerationFactor = 1;
+      setState(() {});
+    }
   }
 
   @override
@@ -98,54 +106,74 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Stack(
-                children: [
-                  Positioned(
-                    left: 16,
-                    top: 16,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CompeletPage()));
-                      },
-                      icon:
-                          const Icon(Icons.cancel_outlined, color: Colors.blue),
+              Positioned(
+                left: 16,
+                bottom: 16,
+                child: GestureDetector(
+                  onLongPressStart: (_) {
+                    brakeTimer =
+                        Timer.periodic(Duration(milliseconds: 1), (timer) {
+                      decreaseSpeed();
+                    });
+                  },
+                  onLongPressEnd: (_) {
+                    brakeTimer?.cancel();
+                    accelerationFactor = 50;
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueGrey,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 4,
                     ),
+                    child: SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                          child: Text("Brake"),
+                        )),
                   ),
-                  Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: Button(
-                      onPressed: () {
-                        socket.emit('brake button pressed', 'hello');
-                      },
-                      text: "Break",
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: GestureDetector(
+                  onLongPressStart: (_) {
+                    gasTimer =
+                        Timer.periodic(Duration(milliseconds: 1), (timer) {
+                      increaseSpeed();
+                    });
+                  },
+                  onLongPressEnd: (_) {
+                    gasTimer?.cancel();
+                    accelerationFactor = 50;
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueGrey,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 4,
                     ),
+                    child: SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                          child: Text("Gas"),
+                        )),
                   ),
-                  Positioned(
-                    right: 16,
-                    bottom: 16,
-                    child: Button(
-                      onPressed: () {
-                        socket.emit('gas button has been pressed', 'hello');
-                      },
-                      text: "Gas",
-                    ),
-                  ),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Steering: $boxPosition",
-                          style: TextStyle(fontSize: 14, color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
           ],
         ),

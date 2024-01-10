@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
-class CompeletPage extends StatelessWidget {
-  const CompeletPage({super.key});
+class CompletePage extends StatelessWidget {
+  const CompletePage({super.key});
 
   @override
   Widget build(BuildContext context) {

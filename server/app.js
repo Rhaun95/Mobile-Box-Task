@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-var speed = 24;
+var speed = 0;
 var position = 0;
 
 io.on("connection", (socket) => {
@@ -51,15 +51,16 @@ io.on("connection", (socket) => {
   socket.on("gas button has been pressed", () => {
     console.log("gas pressed");
     speed += 1;
-    socket.emit("new number", speed);
+    if (speed > 1200) speed = 1200;
+    io.emit("new number", speed);
   });
 
   socket.on("brake button pressed", () => {
     console.log("brake pressed");
     speed -= 1;
-    socket.emit("new number", speed);
+    if (speed < 0) speed = 0;
+    io.emit("new number", speed);
   });
-
   socket.on("boxPosition", function (data) {
     console.log("Received data from Flutter:", data);
     socket.emit("new number", data);
