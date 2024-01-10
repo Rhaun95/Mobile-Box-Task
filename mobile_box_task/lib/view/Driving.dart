@@ -1,16 +1,12 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_box_task/view/CompletePage.dart';
-import 'package:mobile_box_task/widget/Button.dart';
 import 'package:sensors/sensors.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Driving extends StatefulWidget {
-  const Driving({Key? key}) : super(key: key);
+  const Driving({super.key});
 
   @override
   _DrivingState createState() => _DrivingState();
@@ -42,10 +38,8 @@ class _DrivingState extends State<Driving> {
       setState(() {
         if (-10 <= boxPosition && boxPosition <= 10) {
           if (boxPosition < 0) {
-            // boxPosition = (event.y).floor();
             boxPosition = event.y;
           } else {
-            // boxPosition = (event.y).ceil();
             boxPosition = event.y;
           }
         } else {
@@ -61,6 +55,12 @@ class _DrivingState extends State<Driving> {
 
     socket.onDisconnect((_) {
       print('Disconnected from server');
+    });
+
+    socket.on('new number', (receivedSpeed) {
+      setState(() {
+        speed = receivedSpeed.toDouble();
+      });
     });
 
     socket.connect();
@@ -136,92 +136,20 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Positioned(
-                left: 16,
-                bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    brakeTimer =
-                        Timer.periodic(Duration(milliseconds: 1), (timer) {
-                      decreaseSpeed();
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    brakeTimer?.cancel();
-                    accelerationFactor = 1;
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Brake"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady)
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    gasTimer =
-                        Timer.periodic(Duration(milliseconds: 1), (timer) {
-                      increaseSpeed();
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    gasTimer?.cancel();
-                    accelerationFactor = 1;
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Gas"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady)
-              Stack(
-                children: [
-                  Center(
-                    child: Positioned(
-                      left: MediaQuery.of(context).size.width * 0.5 -
-                          speed / 2 +
-                          boxPosition * 30,
-                      top: -speed / 2,
+              Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      left: MediaQuery.of(context).size.width * 0.5 - speed / 2,
                       child: Container(
                         width: speed,
                         height: speed,
                         color: Colors.blue,
                       ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
             if (_isReady)
               Positioned(
@@ -256,6 +184,76 @@ class _DrivingState extends State<Driving> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                left: 16,
+                bottom: 16,
+                child: GestureDetector(
+                  onLongPressStart: (_) {
+                    brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
+                        (timer) {
+                      decreaseSpeed();
+                    });
+                  },
+                  onLongPressEnd: (_) {
+                    brakeTimer?.cancel();
+                    accelerationFactor = 1;
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueGrey,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 4,
+                    ),
+                    child: const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                          child: Text("Brake"),
+                        )),
+                  ),
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: GestureDetector(
+                  onLongPressStart: (_) {
+                    gasTimer = Timer.periodic(const Duration(milliseconds: 1),
+                        (timer) {
+                      increaseSpeed();
+                    });
+                  },
+                  onLongPressEnd: (_) {
+                    gasTimer?.cancel();
+                    accelerationFactor = 1;
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueGrey,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 4,
+                    ),
+                    child: const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                          child: Text("Gas"),
+                        )),
                   ),
                 ),
               ),
