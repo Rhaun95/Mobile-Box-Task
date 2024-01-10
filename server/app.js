@@ -50,6 +50,7 @@ io.on("connection", (socket) => {
 
   socket.on("gas button has been pressed", () => {
     console.log("gas pressed");
+    console.log(speed);
     speed += 1;
     if (speed > 1200) speed = 1200;
     io.emit("new number", speed);
@@ -57,6 +58,7 @@ io.on("connection", (socket) => {
 
   socket.on("brake button pressed", () => {
     console.log("brake pressed");
+    console.log(speed);
     speed -= 1;
     if (speed < 0) speed = 0;
     io.emit("new number", speed);

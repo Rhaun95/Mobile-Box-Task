@@ -12,14 +12,14 @@
     >
       <ul id="messages"></ul>
       <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
+        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10"
         id="brake"
         type="button"
         name="brake"
         value="Brake"
       />
       <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
+        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10"
         id="gas"
         type="button"
         name="gas"
@@ -54,9 +54,9 @@
   var brake = document.getElementById("brake");
   var sum = document.getElementById("sum");
   var drivingBox = document.getElementById("drivingBox");
-  var intervalId = null; // Variable, um das Intervall zu speichern
-  var speed = 0; // Startgeschwindigkeit
-  var accelerationFactor = 50; // Startbeschleunigungsfaktor
+  var intervalId = null;
+  var speed = 0;
+  var accelerationFactor = 50;
 
   function increaseSpeed() {
     if (speed <= 1200) {

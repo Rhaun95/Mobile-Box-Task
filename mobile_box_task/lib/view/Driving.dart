@@ -21,11 +21,11 @@ class _DrivingState extends State<Driving> {
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
   bool _isReady = false;
-  int count = 3;
+  int count = 0;
   late Timer _timer;
   late IO.Socket socket;
-  int speed = 0;
-  double accelerationFactor = 50.0;
+  double speed = 0;
+  double accelerationFactor = 1;
   bool isGasPressed = false;
   bool isBrakePressed = false;
 
@@ -91,25 +91,29 @@ class _DrivingState extends State<Driving> {
   Timer? brakeTimer;
 
   void increaseSpeed() {
-    if (speed <= 200) {
-      speed += accelerationFactor.toInt();
-      if (speed > 200) speed = 200;
-      socket.emit("gas button has been pressed", speed);
-      accelerationFactor *= 0.95;
-      if (accelerationFactor < 1) accelerationFactor = 1;
-      setState(() {});
-    }
+    print(speed);
+    setState(() {
+      if (speed <= 1200) {
+        speed += accelerationFactor.toInt();
+        if (speed > 1200) speed = 1200;
+        socket.emit("gas button has been pressed", speed);
+        accelerationFactor *= 0.01;
+        if (accelerationFactor < 1) accelerationFactor = 1;
+      }
+    });
   }
 
   void decreaseSpeed() {
-    if (speed >= 0) {
-      speed -= accelerationFactor.toInt();
-      if (speed < 0) speed = 0;
-      socket.emit("brake button pressed", speed);
-      accelerationFactor *= 0.95;
-      if (accelerationFactor < 1) accelerationFactor = 1;
-      setState(() {});
-    }
+    print(speed);
+    setState(() {
+      if (speed >= 0) {
+        speed -= accelerationFactor.toInt();
+        if (speed < 0) speed = 0;
+        socket.emit("brake button pressed", speed);
+        accelerationFactor *= 0.01;
+        if (accelerationFactor < 1) accelerationFactor = 1;
+      }
+    });
   }
 
   @override
@@ -144,7 +148,7 @@ class _DrivingState extends State<Driving> {
                   },
                   onLongPressEnd: (_) {
                     brakeTimer?.cancel();
-                    accelerationFactor = 50;
+                    accelerationFactor = 1;
                   },
                   child: ElevatedButton(
                     onPressed: () {},
@@ -179,7 +183,7 @@ class _DrivingState extends State<Driving> {
                   },
                   onLongPressEnd: (_) {
                     gasTimer?.cancel();
-                    accelerationFactor = 50;
+                    accelerationFactor = 1;
                   },
                   child: ElevatedButton(
                     onPressed: () {},
@@ -202,18 +206,22 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Positioned(
-                left: MediaQuery.of(context).size.width * 0.5 -
-                    100 +
-                    boxPosition * 30,
-                top: MediaQuery.of(context).size.height * 0.5 - 100,
-                child: Center(
-                  child: Container(
-                    width: 200.0,
-                    height: 200.0,
-                    color: Colors.blue,
-                  ),
-                ),
+              Stack(
+                children: [
+                  Center(
+                    child: Positioned(
+                      left: MediaQuery.of(context).size.width * 0.5 -
+                          speed / 2 +
+                          boxPosition * 30,
+                      top: -speed / 2,
+                      child: Container(
+                        width: speed,
+                        height: speed,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  )
+                ],
               ),
             if (_isReady)
               Positioned(
