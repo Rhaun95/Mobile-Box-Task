@@ -1,6 +1,12 @@
 import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/view/CompletePage.dart';
+import 'package:mobile_box_task/widget/Button.dart';
+import 'package:sensors/sensors.dart';
+
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Driving extends StatefulWidget {
@@ -11,14 +17,17 @@ class Driving extends StatefulWidget {
 }
 
 class _DrivingState extends State<Driving> {
+  List<double> accelerometer = [0.0, 0.0, 0.0];
+  List<double> gyroscope = [0.0, 0.0, 0.0];
+  double boxPosition = 0;
+  bool _isReady = false;
+  int count = 3;
   late Timer _timer;
   late IO.Socket socket;
   int speed = 0;
-  int count = 3;
   double accelerationFactor = 50.0;
   bool isGasPressed = false;
   bool isBrakePressed = false;
-  bool _isReady = false;
 
   @override
   void initState() {
@@ -27,6 +36,23 @@ class _DrivingState extends State<Driving> {
     socket = IO.io('http://localhost:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
+    });
+
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      setState(() {
+        if (-10 <= boxPosition && boxPosition <= 10) {
+          if (boxPosition < 0) {
+            // boxPosition = (event.y).floor();
+            boxPosition = event.y;
+          } else {
+            // boxPosition = (event.y).ceil();
+            boxPosition = event.y;
+          }
+        } else {
+          boxPosition = 0;
+        }
+        socket.emit('boxPosition', boxPosition);
+      });
     });
 
     socket.onConnect((_) {
@@ -172,6 +198,56 @@ class _DrivingState extends State<Driving> {
                         child: Center(
                           child: Text("Gas"),
                         )),
+                  ),
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                left: MediaQuery.of(context).size.width * 0.5 -
+                    100 +
+                    boxPosition * 30,
+                top: MediaQuery.of(context).size.height * 0.5 - 100,
+                child: Center(
+                  child: Container(
+                    width: 200.0,
+                    height: 200.0,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                child: Center(
+                  child: Stack(
+                    children: <Widget>[
+                      Positioned(
+                        child: Container(
+                          width: 250.0,
+                          height: 250.0,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 50,
+                        top: 50,
+                        child: Container(
+                          width: 150.0,
+                          height: 150.0,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors
+                                  .black, // Setzen Sie die Border-Color hier
+                              width: 2.0, // Setzen Sie die Border-Width hier
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
