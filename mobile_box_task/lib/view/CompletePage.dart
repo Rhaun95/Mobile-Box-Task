@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/view/Home.dart';
+import 'package:flutter/services.dart';
+import 'package:mobile_box_task/main.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
 class CompletePage extends StatelessWidget {
@@ -37,10 +38,16 @@ class CompletePage extends StatelessWidget {
                 children: [
                   Button(
                       onPressed: () {
+                        //Change the orientation back to portrait
+                        SystemChrome.setPreferredOrientations([
+                          DeviceOrientation.portraitUp,
+                          DeviceOrientation.portraitDown,
+                        ]);
+
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Home()));
+                                builder: (context) => const MBTApp()));
                       },
                       text: "Back To Home Page"),
                   const SizedBox(width: 50),

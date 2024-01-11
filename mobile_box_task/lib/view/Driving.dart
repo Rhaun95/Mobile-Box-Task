@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:sensors/sensors.dart';
 
@@ -130,11 +131,6 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
@@ -155,7 +151,7 @@ class _DrivingState extends State<Driving> {
                     Positioned(
                       left: MediaQuery.of(context).size.width * 0.5 -
                           speed / 2 +
-                          boxPosition * 30,
+                          boxPosition * 50,
                       child: Container(
                         width: speed,
                         height: speed,
@@ -180,8 +176,10 @@ class _DrivingState extends State<Driving> {
                 top: 16,
                 child: IconButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Home()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CompletePage()));
                   },
                   icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
                 ),
