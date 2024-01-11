@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/view/Home.dart';
@@ -25,11 +26,13 @@ class _DrivingState extends State<Driving> {
   double accelerationFactor = 1;
   bool isGasPressed = false;
   bool isBrakePressed = false;
+  bool hasToClick = false;
 
   @override
   void initState() {
     super.initState();
     startCountdown();
+    setHasToClickAfterRandomTime();
     socket = IO.io('http://localhost:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
@@ -92,7 +95,6 @@ class _DrivingState extends State<Driving> {
   Timer? brakeTimer;
 
   void increaseSpeed() {
-    print(speed);
     setState(() {
       if (speed <= 1200) {
         speed += accelerationFactor.toInt();
@@ -101,6 +103,15 @@ class _DrivingState extends State<Driving> {
         accelerationFactor *= 0.01;
         if (accelerationFactor < 1) accelerationFactor = 1;
       }
+    });
+  }
+
+  void setHasToClickAfterRandomTime() {
+    Timer.periodic(Duration(seconds: 3 + Random().nextInt(3)), (timer) {
+      setState(() {
+        hasToClick = true;
+        timer.cancel();
+      });
     });
   }
 
@@ -279,6 +290,34 @@ class _DrivingState extends State<Driving> {
                           child: Text("Gas"),
                         )),
                   ),
+                ),
+              ),
+            if (_isReady && hasToClick)
+              Positioned(
+                right: 16,
+                bottom: 100,
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      hasToClick = false;
+                      setHasToClickAfterRandomTime();
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blueGrey,
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Center(
+                        child: Text("DRT"),
+                      )),
                 ),
               ),
           ],
