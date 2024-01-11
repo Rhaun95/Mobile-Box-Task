@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/view/CompletePage.dart';
+
 import 'package:sensors/sensors.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -118,11 +120,6 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
@@ -167,7 +164,12 @@ class _DrivingState extends State<Driving> {
                 left: 16,
                 top: 16,
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CompletePage()));
+                  },
                   icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
                 ),
               ),
