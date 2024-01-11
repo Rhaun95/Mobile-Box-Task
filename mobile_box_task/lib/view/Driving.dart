@@ -164,6 +164,15 @@ class _DrivingState extends State<Driving> {
               ),
             if (_isReady)
               Positioned(
+                left: 16,
+                top: 16,
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
+                ),
+              ),
+            if (_isReady)
+              Positioned(
                 child: Center(
                   child: Stack(
                     children: <Widget>[
