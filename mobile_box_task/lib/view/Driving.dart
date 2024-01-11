@@ -140,7 +140,7 @@ class _DrivingState extends State<Driving> {
                     Positioned(
                       left: MediaQuery.of(context).size.width * 0.5 -
                           speed / 2 +
-                          boxPosition * 30,
+                          boxPosition * 50,
                       child: Container(
                         width: speed,
                         height: speed,
