@@ -148,6 +148,15 @@ class _DrivingState extends State<Driving> {
                         width: speed,
                         height: speed,
                         color: Colors.blue,
+                        child: Center(
+                          child: Text(
+                            speed.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
