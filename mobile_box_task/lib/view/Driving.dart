@@ -141,7 +141,9 @@ class _DrivingState extends State<Driving> {
                   alignment: Alignment.center,
                   children: [
                     Positioned(
-                      left: MediaQuery.of(context).size.width * 0.5 - speed / 2,
+                      left: MediaQuery.of(context).size.width * 0.5 -
+                          speed / 2 +
+                          boxPosition * 30,
                       child: Container(
                         width: speed,
                         height: speed,
