@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-var app = express(); //Rückgabe von express in Variable speichern
+var app = express();
 var http = require("http");
 var server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -27,15 +27,37 @@ app.get("/", (req, res) => {
 
 var speed = 0;
 var position = 0;
+let isGasPressed = false;
 
 io.on("connection", (socket) => {
   setInterval(() => {
     socket.emit("new number", speed);
   }, 100);
 
-  console.log("a user connected");
+  socket.on("gas button state", (pressed) => {
+    isGasPressed = pressed;
+    console.log(pressed);
+  });
+
+  const mu = 0.02; // Rollwiderstandskoeffizient
+  const m = 1500; // Masse des Autos in kg
+  const g = 9.81; // Gravitation
+  const speedReductionInterval = setInterval(() => {
+    if (!isGasPressed && speed > 0) {
+      const rollingResistanceForce = mu * m * g; //Rollwiderstand = Rollwiderstandskoeffizient * Masse * Gravitation
+
+      const reductionFactor = -rollingResistanceForce / m; // Geschwindigkeitsreduktion = -Rollwiderstand / Masse
+      speed += reductionFactor / 100;
+
+      if (speed < 0) speed = 0;
+
+      io.emit("new number", speed);
+    }
+  }, 1);
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
+    clearInterval(speedReductionInterval);
   });
 
   socket.on("chat message", (msg) => {
@@ -49,22 +71,44 @@ io.on("connection", (socket) => {
   });
 
   socket.on("gas button has been pressed", () => {
-    console.log("gas pressed");
-    console.log(speed);
-    speed += 1;
-    if (speed > 1200) speed = 1200;
+    const initialSpeed = speed; // Anfangsgeschwindigkeit
+    const maxSpeed = 200; // Höchstgeschwindigkeit
+    const accelerationTime = 10; // Zeit in Sekunden
+    const deltaTime = 0.004; // Zeitintervall
+
+    const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
+
+    const deltaV = acceleration * deltaTime; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
+
+    speed += deltaV;
+
+    if (speed > maxSpeed) speed = maxSpeed;
     io.emit("new number", speed);
   });
 
+  socket.on("gas button released", () => {
+    isGasPressed = false;
+  });
+
   socket.on("brake button pressed", () => {
-    console.log("brake pressed");
-    console.log(speed);
-    speed -= 1;
+    const brakeFriction = 0.9; //Bremskoeffizient
+
+    const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
+
+    const speedFactor = speed / 200; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
+
+    const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
+
+    const delay = currentBrakeForce / m; //Verzögerung = aktuelle Bremskraft / Masse
+
+    speed -= delay * 0.1;
+
     if (speed < 0) speed = 0;
+
     io.emit("new number", speed);
   });
+
   socket.on("boxPosition", function (data) {
-    console.log("Received data from Flutter:", data);
     socket.emit("new number", data);
   });
 });
@@ -72,7 +116,7 @@ io.on("connection", (socket) => {
 io.emit("some event", {
   someProperty: "some value",
   otherProperty: "other value",
-}); // This will emit the event to all connected sockets
+});
 
 server.listen(3001, () => {
   console.log("listening on *:3001");

@@ -91,29 +91,23 @@ class _DrivingState extends State<Driving> {
   Timer? brakeTimer;
 
   void increaseSpeed() {
-    print(speed);
     setState(() {
-      if (speed <= 1200) {
-        speed += accelerationFactor.toInt();
-        if (speed > 1200) speed = 1200;
-        socket.emit("gas button has been pressed", speed);
-        accelerationFactor *= 0.01;
-        if (accelerationFactor < 1) accelerationFactor = 1;
-      }
+      socket.emit("gas button has been pressed", speed);
     });
   }
 
   void decreaseSpeed() {
-    print(speed);
     setState(() {
-      if (speed >= 0) {
-        speed -= accelerationFactor.toInt();
-        if (speed < 0) speed = 0;
-        socket.emit("brake button pressed", speed);
-        accelerationFactor *= 0.01;
-        if (accelerationFactor < 1) accelerationFactor = 1;
-      }
+      socket.emit("brake button pressed", speed);
     });
+  }
+
+  void noGasPressed() {
+    socket.emit("gas button state", false);
+  }
+
+  void gasPressed() {
+    socket.emit("gas button state", true);
   }
 
   @override
@@ -230,6 +224,7 @@ class _DrivingState extends State<Driving> {
                 bottom: 16,
                 child: GestureDetector(
                   onLongPressStart: (_) {
+                    gasPressed();
                     gasTimer = Timer.periodic(const Duration(milliseconds: 1),
                         (timer) {
                       increaseSpeed();
@@ -238,6 +233,7 @@ class _DrivingState extends State<Driving> {
                   onLongPressEnd: (_) {
                     gasTimer?.cancel();
                     accelerationFactor = 1;
+                    noGasPressed();
                   },
                   child: ElevatedButton(
                     onPressed: () {},
