@@ -153,7 +153,7 @@ class _DrivingState extends State<Driving> {
                         color: Colors.blue,
                         child: Center(
                           child: Text(
-                            speed.toString(),
+                            speed.toInt().toString(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.0,

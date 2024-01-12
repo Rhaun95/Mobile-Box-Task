@@ -29,30 +29,37 @@ class ReadyToStartPage extends StatelessWidget {
               ),
             ),
             Center(
-              child: Column(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
                   const SizedBox(height: 20),
                   const Text(
-                    "Ready To Start Habibi?",
-                    style: TextStyle(fontSize: 40, color: Colors.blue),
+                    "Press start to begin with the Mobile Box Task",
+                    style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Button(
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 50.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Button(
                           onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Driving()));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Driving(),
+                              ),
+                            );
                           },
-                          text: "Start"),
-                    ],
-                  )
+                          text: "Start",
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
