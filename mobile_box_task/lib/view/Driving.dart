@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_box_task/view/CompletePage.dart';
+import 'package:mobile_box_task/view/Home.dart';
 import 'package:sensors/sensors.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -24,11 +27,13 @@ class _DrivingState extends State<Driving> {
   double accelerationFactor = 1;
   bool isGasPressed = false;
   bool isBrakePressed = false;
+  bool hasToClick = false;
 
   @override
   void initState() {
     super.initState();
     startCountdown();
+    setHasToClickAfterRandomTime();
     socket = IO.io('http://localhost:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
@@ -96,6 +101,15 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  void setHasToClickAfterRandomTime() {
+    Timer.periodic(Duration(seconds: 3 + Random().nextInt(3)), (timer) {
+      setState(() {
+        hasToClick = true;
+        timer.cancel();
+      });
+    });
+  }
+
   void decreaseSpeed() {
     setState(() {
       socket.emit("brake button pressed", speed);
@@ -112,11 +126,6 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
@@ -137,14 +146,37 @@ class _DrivingState extends State<Driving> {
                     Positioned(
                       left: MediaQuery.of(context).size.width * 0.5 -
                           speed / 2 +
-                          boxPosition * 30,
+                          boxPosition * 50,
                       child: Container(
                         width: speed,
                         height: speed,
                         color: Colors.blue,
+                        child: Center(
+                          child: Text(
+                            speed.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
+                ),
+              ),
+            if (_isReady)
+              Positioned(
+                left: 16,
+                top: 16,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CompletePage()));
+                  },
+                  icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
                 ),
               ),
             if (_isReady)
@@ -253,6 +285,34 @@ class _DrivingState extends State<Driving> {
                           child: Text("Gas"),
                         )),
                   ),
+                ),
+              ),
+            if (_isReady && hasToClick)
+              Positioned(
+                right: 16,
+                bottom: 100,
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      hasToClick = false;
+                      setHasToClickAfterRandomTime();
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blueGrey,
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Center(
+                        child: Text("DRT"),
+                      )),
                 ),
               ),
           ],

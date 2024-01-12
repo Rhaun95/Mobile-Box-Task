@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_box_task/view/InstructionPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
@@ -17,6 +18,10 @@ class Home extends StatelessWidget {
             children: [
               Button(
                   onPressed: () {
+                    SystemChrome.setPreferredOrientations([
+                      DeviceOrientation.portraitUp,
+                      DeviceOrientation.portraitDown,
+                    ]);
                     Navigator.push(
                         context,
                         MaterialPageRoute(

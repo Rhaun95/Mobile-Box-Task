@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_box_task/view/Driving.dart';
+import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
 class InstructionPage extends StatelessWidget {
@@ -40,10 +42,14 @@ class InstructionPage extends StatelessWidget {
                   ),
                   Button(
                     onPressed: () {
+                      SystemChrome.setPreferredOrientations([
+                        DeviceOrientation.landscapeLeft,
+                        DeviceOrientation.landscapeRight,
+                      ]);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Driving(),
+                          builder: (context) => const ReadyToStartPage(),
                         ),
                       );
                     },
