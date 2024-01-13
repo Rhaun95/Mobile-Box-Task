@@ -9,7 +9,6 @@ class AnimatedPhone extends StatefulWidget {
 
 class _AnimatedPhoneState extends State<AnimatedPhone>
     with TickerProviderStateMixin {
-  bool isRotated = false;
   late Timer _timer;
   late AnimationController _animationController;
 
@@ -18,10 +17,10 @@ class _AnimatedPhoneState extends State<AnimatedPhone>
     super.initState();
 
     _animationController = AnimationController(
-      duration: Duration(seconds: 1), // Set your desired duration
+      duration: Duration(seconds: 1), // duration of animation
       vsync: this,
     );
-
+    _rotatePhone();
     _timer = Timer.periodic(Duration(milliseconds: 1500), (Timer timer) {
       _rotatePhone();
     });
@@ -32,9 +31,8 @@ class _AnimatedPhoneState extends State<AnimatedPhone>
     return Scaffold(
       body: Center(
         child: RotationTransition(
-          turns: isRotated
-              ? Tween(begin: 0.0, end: -0.25).animate(_animationController)
-              : AlwaysStoppedAnimation(0),
+          turns: Tween(begin: 0.0, end: -0.25)
+              .animate(_animationController), // rotate 90° to left
           child: Icon(
             Icons.phone_android,
             size: 100,
@@ -47,7 +45,6 @@ class _AnimatedPhoneState extends State<AnimatedPhone>
 
   void _rotatePhone() {
     setState(() {
-      isRotated = !isRotated;
       _animationController.reset();
       _animationController.forward(); // Start the animation from the beginning
     });
