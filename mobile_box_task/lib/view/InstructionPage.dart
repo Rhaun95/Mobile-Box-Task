@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
+import 'package:mobile_box_task/widget/AnimatedPhone.dart';
 
 class InstructionPage extends StatelessWidget {
   const InstructionPage({super.key});
@@ -35,7 +36,14 @@ class InstructionPage extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  const SizedBox(width: 350, height: 200, child: Placeholder()),
+                  // const SizedBox(width: 350, height: 200, child: Placeholder()),
+                  Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 100, // Adjust width as needed
+                        height: 100, // Adjust height as needed
+                        child: AnimatedPhone(),
+                      )),
                   const SizedBox(
                     height: 20,
                   ),
