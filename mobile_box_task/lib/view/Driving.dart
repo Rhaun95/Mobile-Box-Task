@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
-import 'package:mobile_box_task/view/Home.dart';
 import 'package:sensors/sensors.dart';
-
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:vibration/vibration.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
@@ -105,6 +103,7 @@ class _DrivingState extends State<Driving> {
     Timer.periodic(Duration(seconds: 3 + Random().nextInt(3)), (timer) {
       setState(() {
         hasToClick = true;
+        Vibration.vibrate(duration: 100);
         timer.cancel();
       });
     });
