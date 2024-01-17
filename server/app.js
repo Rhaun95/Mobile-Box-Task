@@ -111,13 +111,12 @@ io.on("connection", (socket) => {
     socket.emit("new number", data);
   });
 
-  const amplitude = 0.01; // Amplitude
-  const frequency = 0.001; // Frequenz
+  const amplitude = 0.0055; // Amplitude
+  const frequency = 0.00008; // Frequenz
 
   function applySinusDisturbance() {
     const time = new Date().getTime();
-    const disturbance =
-      amplitude * Math.sin((2 * Math.PI * frequency * time) / 10);
+    const disturbance = amplitude * Math.sin(2 * Math.PI * frequency * time);
     return disturbance;
   }
 
