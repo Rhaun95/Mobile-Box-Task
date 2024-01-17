@@ -36,7 +36,6 @@ io.on("connection", (socket) => {
 
   socket.on("gas button state", (pressed) => {
     isGasPressed = pressed;
-    console.log(pressed);
   });
 
   const mu = 0.02; // Rollwiderstandskoeffizient
@@ -111,11 +110,27 @@ io.on("connection", (socket) => {
   socket.on("boxPosition", function (data) {
     socket.emit("new number", data);
   });
-});
 
-io.emit("some event", {
-  someProperty: "some value",
-  otherProperty: "other value",
+  const amplitude = 0.01; // Amplitude
+  const frequency = 0.001; // Frequenz
+
+  function applySinusDisturbance() {
+    const time = new Date().getTime();
+    const disturbance =
+      amplitude * Math.sin((2 * Math.PI * frequency * time) / 10);
+    return disturbance;
+  }
+
+  const applySinusDisturbanceInterval = setInterval(() => {
+    if (speed >= 1) {
+      const disturbance = applySinusDisturbance();
+      speed += disturbance;
+
+      speed = Math.max(0, Math.min(speed, 200));
+
+      io.emit("new number", speed);
+    }
+  }, 1);
 });
 
 server.listen(3001, () => {
