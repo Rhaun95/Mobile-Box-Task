@@ -9,7 +9,7 @@
     "dev-flag": "NODE_OPTIONS='--experimental-fetch' vite",
     "debug": "vite --debug --inspect-brk",
     "build": "postcss tailwind.css -o dist/scripts/tailwind.css",
-    "tailwind:css": "postcss public/styles/tailwind.css -o public/styles/style.css",
+    "tailwind:css": "postcss public/styles/tailwind.css -o public/styles/style.css -w",
     "preview": "vite preview",
     "watch": "nodemon --ext *"
   },

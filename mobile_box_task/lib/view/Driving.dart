@@ -185,8 +185,8 @@ class _DrivingState extends State<Driving> {
                     children: <Widget>[
                       Positioned(
                         child: Container(
-                          width: 150.0,
-                          height: 150.0,
+                          width: 175.0,
+                          height: 175.0,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors.black,
@@ -199,8 +199,8 @@ class _DrivingState extends State<Driving> {
                         left: 37.5,
                         top: 37.5,
                         child: Container(
-                          width: 75.0,
-                          height: 75.0,
+                          width: 100.0,
+                          height: 100.0,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors
