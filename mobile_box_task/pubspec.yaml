@@ -34,6 +34,8 @@ dependencies:
   # NEW
   sensors: ^2.0.3
   vibration: ^1.8.4
+  provider: ^6.0.4 
+
 
 
   # The following adds the Cupertino Icons font to your application.
