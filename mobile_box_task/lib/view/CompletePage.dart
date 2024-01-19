@@ -2,13 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/main.dart';
+import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/widget/Button.dart';
+import 'package:provider/provider.dart';
 
 class CompletePage extends StatelessWidget {
   const CompletePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    DrivingData drivingData = Provider.of<DrivingData>(context);
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -25,11 +29,19 @@ class CompletePage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                "Querfehler: 123 ",
+                "Gas pressed: ${drivingData.countGas} ",
                 style: TextStyle(fontSize: 24, color: Colors.blue),
               ),
               Text(
-                "Längsfehler: 21",
+                "Brake pressed : ${drivingData.countBrake}",
+                style: TextStyle(fontSize: 24, color: Colors.blue),
+              ),
+              Text(
+                "DRT pressed : ${drivingData.countDRT}",
+                style: TextStyle(fontSize: 24, color: Colors.blue),
+              ),
+              Text(
+                "Total Time: ${drivingData.elapsedTime.inMinutes.toString().padLeft(2, '0')}:${(drivingData.elapsedTime.inSeconds % 60).toString().padLeft(2, '0')}",
                 style: TextStyle(fontSize: 24, color: Colors.blue),
               ),
               const SizedBox(height: 10),

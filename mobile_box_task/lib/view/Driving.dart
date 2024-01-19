@@ -2,15 +2,27 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
+import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
+// import 'package:vibration/vibration.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
 
   @override
   _DrivingState createState() => _DrivingState();
+}
+
+class DrivingData extends ChangeNotifier {
+  //-------- Datenlogging--------------------------------
+  int countGas = 0;
+  int countBrake = 0;
+  int countDRT = 0;
+  late Duration elapsedTime;
+
+  //--------------------------------------------------------
 }
 
 class _DrivingState extends State<Driving> {
@@ -27,6 +39,8 @@ class _DrivingState extends State<Driving> {
   bool isBrakePressed = false;
   bool hasToClick = false;
 
+  Stopwatch stopwatch = new Stopwatch();
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +50,8 @@ class _DrivingState extends State<Driving> {
       'transports': ['websocket'],
       'autoConnect': true,
     });
+
+    stopwatch.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
@@ -125,6 +141,8 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
+    DrivingData drivingData = Provider.of<DrivingData>(context);
+
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
@@ -170,6 +188,9 @@ class _DrivingState extends State<Driving> {
                 top: 16,
                 child: IconButton(
                   onPressed: () {
+                    stopwatch.stop();
+                    print('Duration: ${stopwatch.elapsed}');
+                    drivingData.elapsedTime = stopwatch.elapsed;
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -220,6 +241,8 @@ class _DrivingState extends State<Driving> {
                 bottom: 16,
                 child: GestureDetector(
                   onLongPressStart: (_) {
+                    drivingData.countBrake += 1;
+                    print("brake button pressed: ${drivingData.countBrake}");
                     brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
                         (timer) {
                       decreaseSpeed();
@@ -256,6 +279,9 @@ class _DrivingState extends State<Driving> {
                 child: GestureDetector(
                   onLongPressStart: (_) {
                     gasPressed();
+                    drivingData.countGas += 1;
+                    // 작업이 완료된 후에 출력
+                    print("gas button pressed: ${drivingData.countGas}");
                     gasTimer = Timer.periodic(const Duration(milliseconds: 1),
                         (timer) {
                       increaseSpeed();
@@ -296,6 +322,8 @@ class _DrivingState extends State<Driving> {
                       hasToClick = false;
                       setHasToClickAfterRandomTime();
                     });
+                    drivingData.countDRT += 1;
+                    print('DRT pressed: ${drivingData.countDRT}');
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
