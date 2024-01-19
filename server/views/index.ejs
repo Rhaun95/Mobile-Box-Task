@@ -1,48 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/styles/style.css" rel="stylesheet" />
-  </head>
 
-  <body class="overflow-hidden">
-    <main
-      class="w-screen h-screen bg-gray-800 flex justify-center items-center"
-    >
-      <ul id="messages"></ul>
-      <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
-        id="brake"
-        type="button"
-        name="brake"
-        value="Brake"
-      />
-      <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
-        id="gas"
-        type="button"
-        name="gas"
-        value="Gas"
-      />
-      <div
-        class="w-[225px] h-[225px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
-      ></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/styles/style.css" rel="stylesheet" />
+</head>
 
-      <div
-        class="bg-blue-700 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
-        id="drivingBox"
-      ></div>
-      <span
-        id="sum"
-        class="font-bold text-4xl text-white stroke-white stroke-2 absolute"
-      ></span>
+<body class="overflow-hidden">
+  <main class="w-screen h-screen bg-gray-800 flex justify-center items-center">
+    <ul id="messages"></ul>
+    <input
+      class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
+      id="brake" type="button" name="brake" value="Brake" />
+    <input
+      class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
+      id="gas" type="button" name="gas" value="Gas" />
+    <div class="w-[225px] h-[225px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"></div>
 
-      <div
-        class="w-[525px] h-[525px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
-      ></div>
-    </main>
-  </body>
+    <div class="bg-blue-700 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
+      id="drivingBox"></div>
+    <span id="sum" class="font-bold text-4xl text-white stroke-white stroke-2 absolute"></span>
+
+    <div class="w-[525px] h-[525px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"></div>
+  </main>
+</body>
+
 </html>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -86,7 +69,10 @@
       drivingBox.style.height = size * 3 + "px";
     }
   }
+  function updateBoxPostion(position) {
+    drivingBox.style.left = position + "px";
 
+  }
   gas.addEventListener("mousedown", function () {
     intervalId = setInterval(increaseSpeed, 1); // Beschleunige alle 50 Millisekunden
   });
@@ -105,13 +91,6 @@
     accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
   });
 
-  socket.on("chat message", function (msg) {
-    var item = document.createElement("li");
-    item.textContent = msg;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-
   socket.on("new number", function (currentSpeed) {
     speed = Math.min(Math.max(currentSpeed, 0), 250);
     sum.textContent = Math.floor(speed) + " Km/h";
@@ -119,7 +98,11 @@
     updateBoxSize(boxSize);
   });
 
-  socket.on("box", function (position) {
-    steer.boxPosition = position;
+  socket.on("update boxPosition", (position) => {
+    let screenWidth = window.innerWidth;
+    var newBoxPosition = screenWidth * 0.5 - speed * 1.6 + position * 145;
+    // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
+    updateBoxPostion(newBoxPosition);
   });
+
 </script>

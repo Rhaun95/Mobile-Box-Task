@@ -46,7 +46,8 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown();
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://localhost:3001', <String, dynamic>{
+    // eure IPv4 Adresse von Wifi
+    socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
@@ -64,6 +65,7 @@ class _DrivingState extends State<Driving> {
         } else {
           boxPosition = 0;
         }
+
         socket.emit('boxPosition', boxPosition);
       });
     });
@@ -72,9 +74,9 @@ class _DrivingState extends State<Driving> {
       print('Connected to server');
     });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
+    // socket.onDisconnect((_) {
+    //   print('Disconnected from server');
+    // });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {

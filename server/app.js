@@ -3,8 +3,16 @@ const path = require("path");
 var app = express();
 var http = require("http");
 var server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+// const { Server } = require("socket.io");
+// const io = new Server(server);
+const socketIo = require("socket.io")
+
+const io = socketIo(server)
+
+const PORT = 3001;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`listening on *: ${PORT}`);
+});
 
 var livereload = require("livereload");
 var connectLiveReload = require("connect-livereload");
@@ -26,7 +34,6 @@ app.get("/", (req, res) => {
 });
 
 var speed = 0;
-var position = 0;
 let isGasPressed = false;
 
 io.on("connection", (socket) => {
@@ -65,8 +72,6 @@ io.on("connection", (socket) => {
     console.log("message: " + msg);
   });
 
-  socket.broadcast.emit("hi");
-
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);
   });
@@ -84,7 +89,7 @@ io.on("connection", (socket) => {
     speed += deltaV;
 
     if (speed > maxSpeed) speed = maxSpeed;
-    io.emit("new number", speed);
+    socket.emit("new number", speed);
   });
 
   socket.on("gas button released", () => {
@@ -106,16 +111,17 @@ io.on("connection", (socket) => {
 
     if (speed < 0) speed = 0;
 
-    io.emit("new number", speed);
+    socket.emit("new number", speed);
   });
 
   socket.on("boxPosition", function (data) {
-    socket.emit("new number", data);
-  });
+    // socket.emit("new number", data);
+    io.emit("update boxPosition", data);
 
+  });
   let time = 0;
   const timeElapsed = setInterval(() => {
-    console.log(time);
+    // console.log(time);
     time += 0.25;
   }, 10);
 
@@ -126,11 +132,7 @@ io.on("connection", (socket) => {
 
       speed = Math.max(0, Math.min(speed, 250));
 
-      io.emit("new number", speed);
+      socket.emit("new number", speed);
     }
   }, 50);
-});
-
-server.listen(3001, () => {
-  console.log("listening on *:3001");
 });

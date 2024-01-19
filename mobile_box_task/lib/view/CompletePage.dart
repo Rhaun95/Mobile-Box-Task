@@ -22,27 +22,25 @@ class CompletePage extends StatelessWidget {
         body: Center(
           child: Column(
             children: [
-              const SizedBox(height: 20),
               const Text(
                 "Complete",
                 style: TextStyle(fontSize: 40, color: Colors.blue),
               ),
-              const SizedBox(height: 20),
               Text(
                 "Gas pressed: ${drivingData.countGas} ",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+                style: TextStyle(fontSize: 15, color: Colors.blue),
               ),
               Text(
                 "Brake pressed : ${drivingData.countBrake}",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+                style: TextStyle(fontSize: 15, color: Colors.blue),
               ),
               Text(
                 "DRT pressed : ${drivingData.countDRT}",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+                style: TextStyle(fontSize: 15, color: Colors.blue),
               ),
               Text(
                 "Total Time: ${drivingData.elapsedTime.inMinutes.toString().padLeft(2, '0')}:${(drivingData.elapsedTime.inSeconds % 60).toString().padLeft(2, '0')}",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+                style: TextStyle(fontSize: 15, color: Colors.blue),
               ),
               const SizedBox(height: 10),
               Row(
@@ -61,7 +59,7 @@ class CompletePage extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => const MBTApp()));
                       },
-                      text: "Back To Home Page"),
+                      text: "Home"),
                   const SizedBox(width: 50),
                   Button(onPressed: () => exit(0), text: "Exit"),
                 ],
