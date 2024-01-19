@@ -8,7 +8,7 @@
 
   <body class="overflow-hidden">
     <main
-      class="w-screen h-screen bg-gradient-to-br from-purple-800 to-violet-950 flex justify-center items-center"
+      class="w-screen h-screen bg-gray-800 flex justify-center items-center"
     >
       <ul id="messages"></ul>
       <input
@@ -26,20 +26,20 @@
         value="Gas"
       />
       <div
-        class="w-[300px] h-[300px] border-8 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+        class="w-[225px] h-[225px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
       ></div>
 
       <div
-        class="bg-gradient-to-b from-sky-600 to bg-cyan-400 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
+        class="bg-blue-700 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
         id="drivingBox"
       ></div>
       <span
         id="sum"
-        class="font-bold text-6xl text-gray-950 stroke-white stroke-2 absolute"
+        class="font-bold text-4xl text-white stroke-white stroke-2 absolute"
       ></span>
 
       <div
-        class="w-[525px] h-[525px] border-8 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+        class="w-[525px] h-[525px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
       ></div>
     </main>
   </body>
@@ -59,9 +59,9 @@
   var accelerationFactor = 50;
 
   function increaseSpeed() {
-    if (speed <= 1200) {
+    if (speed <= 250) {
       speed += accelerationFactor;
-      if (speed > 1200) speed = 1200; // Begrenzen Sie die Geschwindigkeit auf 200
+      if (speed > 250) speed = 250; // Begrenzen Sie die Geschwindigkeit auf 250
       socket.emit("gas button has been pressed", speed);
       accelerationFactor *= 0.95;
       if (accelerationFactor < 1) accelerationFactor = 1;
@@ -80,8 +80,8 @@
   }
 
   function updateBoxSize(size) {
-    // Nur aktualisieren, wenn die Geschwindigkeit kleiner oder gleich 200 ist
-    if (speed <= 1200) {
+    // Nur aktualisieren, wenn die Geschwindigkeit kleiner oder gleich 250 ist
+    if (speed <= 250) {
       drivingBox.style.width = size * 3 + "px";
       drivingBox.style.height = size * 3 + "px";
     }
@@ -113,7 +113,7 @@
   });
 
   socket.on("new number", function (currentSpeed) {
-    speed = Math.min(Math.max(currentSpeed, 0), 1200);
+    speed = Math.min(Math.max(currentSpeed, 0), 250);
     sum.textContent = Math.floor(speed) + " Km/h";
     var boxSize = speed;
     updateBoxSize(boxSize);

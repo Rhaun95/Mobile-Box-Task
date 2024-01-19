@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
     isGasPressed = pressed;
   });
 
-  const mu = 0.02; // Rollwiderstandskoeffizient
+  const mu = 0.015; // Rollwiderstandskoeffizient
   const m = 1500; // Masse des Autos in kg
   const g = 9.81; // Gravitation
   const speedReductionInterval = setInterval(() => {
@@ -57,6 +57,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
     clearInterval(speedReductionInterval);
+    clearInterval(sinusInterval);
+    clearInterval(timeElapsed);
   });
 
   socket.on("chat message", (msg) => {
@@ -71,9 +73,9 @@ io.on("connection", (socket) => {
 
   socket.on("gas button has been pressed", () => {
     const initialSpeed = speed; // Anfangsgeschwindigkeit
-    const maxSpeed = 200; // Höchstgeschwindigkeit
+    const maxSpeed = 250; // Höchstgeschwindigkeit
     const accelerationTime = 10; // Zeit in Sekunden
-    const deltaTime = 0.004; // Zeitintervall
+    const deltaTime = 0.005; // Zeitintervall
 
     const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
@@ -94,7 +96,7 @@ io.on("connection", (socket) => {
 
     const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
 
-    const speedFactor = speed / 200; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
+    const speedFactor = speed / 250; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
 
     const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
 
@@ -111,25 +113,22 @@ io.on("connection", (socket) => {
     socket.emit("new number", data);
   });
 
-  const amplitude = 0.0055; // Amplitude
-  const frequency = 0.00008; // Frequenz
+  let time = 0;
+  const timeElapsed = setInterval(() => {
+    console.log(time);
+    time += 0.25;
+  }, 10);
 
-  function applySinusDisturbance() {
-    const time = new Date().getTime();
-    const disturbance = amplitude * Math.sin(2 * Math.PI * frequency * time);
-    return disturbance;
-  }
-
-  const applySinusDisturbanceInterval = setInterval(() => {
+  const sinusInterval = setInterval(() => {
     if (speed >= 1) {
-      const disturbance = applySinusDisturbance();
-      speed += disturbance;
+      const sinus = Math.sin((0.625 * Math.PI * time) / 60);
+      speed += sinus;
 
-      speed = Math.max(0, Math.min(speed, 200));
+      speed = Math.max(0, Math.min(speed, 250));
 
       io.emit("new number", speed);
     }
-  }, 1);
+  }, 50);
 });
 
 server.listen(3001, () => {
