@@ -196,11 +196,11 @@ class _DrivingState extends State<Driving> {
                         ),
                       ),
                       Positioned(
-                        left: 37.5,
-                        top: 37.5,
+                        left: 50,
+                        top: 50,
                         child: Container(
-                          width: 100.0,
-                          height: 100.0,
+                          width: 75.0,
+                          height: 75.0,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors
