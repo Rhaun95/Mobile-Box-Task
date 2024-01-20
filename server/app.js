@@ -37,6 +37,7 @@ var speed = 0;
 let isGasPressed = false;
 
 io.on("connection", (socket) => {
+  console.log("user connected");
   setInterval(() => {
     socket.emit("new number", speed);
   }, 100);
