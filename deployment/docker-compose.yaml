@@ -6,8 +6,8 @@ services:
     image: box-task-server
     build: ../server/.
     restart: unless-stopped
-    ports: 
-      - "3001:3001"
+      #    ports: 
+      #      - "3001:3001"
     networks:
       - nginx-proxy
 
