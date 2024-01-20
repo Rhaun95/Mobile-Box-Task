@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
-// import 'package:vibration/vibration.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
@@ -20,7 +19,58 @@ class DrivingData extends ChangeNotifier {
   int countGas = 0;
   int countBrake = 0;
   int countDRT = 0;
-  late Duration elapsedTime;
+  late String totalElapsedTime;
+  List<int> drtTimes = [];
+  late String meanDRT;
+
+  brakeButtonPressed() {
+    countBrake += 1;
+    print("brake button pressed: ${countBrake}");
+    // notifyListeners();
+  }
+
+  void gasButtonPressed() {
+    countGas += 1;
+    print("gas button pressed: ${countGas}");
+  }
+
+  void drtButtonPressed(Stopwatch stopwatch) {
+    stopwatch.stop();
+    drtTimes.add(stopwatch.elapsedMilliseconds);
+    print('DRT pressed: ${drtTimes}');
+    countDRT += 1;
+    print('DRT pressed: ${countDRT}');
+  }
+
+// calculate mean of milliSeconds(int) in form 0.00s(String)
+  String calculateDurationMean(List<int> list) {
+    if (list.isNotEmpty) {
+      double meanDuration =
+          list.reduce((value, element) => value + element) / list.length;
+
+      String res = "${(meanDuration / 1000).toStringAsFixed(2)}s";
+      return res;
+    }
+    return "0s";
+  }
+
+// calculate
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    String milliseconds = (duration.inMilliseconds % 1000).toString();
+
+    return '$minutes:$seconds:$milliseconds';
+  }
+
+  void totalTime(Stopwatch stopwatch) {
+    stopwatch.stop();
+    print('Duration: ${stopwatch.elapsed}');
+    totalElapsedTime = formatDuration(stopwatch.elapsed);
+    meanDRT = calculateDurationMean(drtTimes);
+  }
 
   //--------------------------------------------------------
 }
@@ -39,7 +89,11 @@ class _DrivingState extends State<Driving> {
   bool isBrakePressed = false;
   bool hasToClick = false;
 
-  Stopwatch stopwatch = new Stopwatch();
+  Timer? gasTimer;
+  Timer? brakeTimer;
+
+  Stopwatch stopwatchDuration = new Stopwatch();
+  Stopwatch stopwatchDRT = new Stopwatch();
 
   @override
   void initState() {
@@ -52,7 +106,7 @@ class _DrivingState extends State<Driving> {
       'autoConnect': true,
     });
 
-    stopwatch.start();
+    stopwatchDuration.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
@@ -108,22 +162,21 @@ class _DrivingState extends State<Driving> {
     super.dispose();
   }
 
-  Timer? gasTimer;
-  Timer? brakeTimer;
-
-  void increaseSpeed() {
-    setState(() {
-      socket.emit("gas button has been pressed", speed);
-    });
-  }
-
   void setHasToClickAfterRandomTime() {
     Timer.periodic(Duration(seconds: 3 + Random().nextInt(3)), (timer) {
       setState(() {
         hasToClick = true;
         Vibration.vibrate(duration: 100);
         timer.cancel();
+        stopwatchDRT.start();
       });
+    });
+  }
+
+  void drtPressed() {
+    setState(() {
+      hasToClick = false;
+      setHasToClickAfterRandomTime();
     });
   }
 
@@ -139,6 +192,21 @@ class _DrivingState extends State<Driving> {
 
   void gasPressed() {
     socket.emit("gas button state", true);
+    gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+      increaseSpeed();
+    });
+  }
+
+  void increaseSpeed() {
+    setState(() {
+      socket.emit("gas button has been pressed", speed);
+    });
+  }
+
+  void brakePressed() {
+    brakeTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+      decreaseSpeed();
+    });
   }
 
   @override
@@ -190,9 +258,7 @@ class _DrivingState extends State<Driving> {
                 top: 16,
                 child: IconButton(
                   onPressed: () {
-                    stopwatch.stop();
-                    print('Duration: ${stopwatch.elapsed}');
-                    drivingData.elapsedTime = stopwatch.elapsed;
+                    drivingData.totalTime(stopwatchDuration);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -243,12 +309,8 @@ class _DrivingState extends State<Driving> {
                 bottom: 16,
                 child: GestureDetector(
                   onLongPressStart: (_) {
-                    drivingData.countBrake += 1;
-                    print("brake button pressed: ${drivingData.countBrake}");
-                    brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
-                        (timer) {
-                      decreaseSpeed();
-                    });
+                    drivingData.brakeButtonPressed();
+                    brakePressed();
                   },
                   onLongPressEnd: (_) {
                     brakeTimer?.cancel();
@@ -280,14 +342,8 @@ class _DrivingState extends State<Driving> {
                 bottom: 16,
                 child: GestureDetector(
                   onLongPressStart: (_) {
+                    drivingData.gasButtonPressed();
                     gasPressed();
-                    drivingData.countGas += 1;
-                    // 작업이 완료된 후에 출력
-                    print("gas button pressed: ${drivingData.countGas}");
-                    gasTimer = Timer.periodic(const Duration(milliseconds: 1),
-                        (timer) {
-                      increaseSpeed();
-                    });
                   },
                   onLongPressEnd: (_) {
                     gasTimer?.cancel();
@@ -320,12 +376,8 @@ class _DrivingState extends State<Driving> {
                 bottom: 100,
                 child: ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      hasToClick = false;
-                      setHasToClickAfterRandomTime();
-                    });
-                    drivingData.countDRT += 1;
-                    print('DRT pressed: ${drivingData.countDRT}');
+                    drtPressed();
+                    drivingData.drtButtonPressed(stopwatchDRT);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,

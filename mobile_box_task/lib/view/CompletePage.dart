@@ -26,21 +26,38 @@ class CompletePage extends StatelessWidget {
                 "Complete",
                 style: TextStyle(fontSize: 40, color: Colors.blue),
               ),
-              Text(
-                "Gas pressed: ${drivingData.countGas} ",
-                style: TextStyle(fontSize: 15, color: Colors.blue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Gas pressed: ${drivingData.countGas} ",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Brake pressed : ${drivingData.countBrake}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                ],
               ),
-              Text(
-                "Brake pressed : ${drivingData.countBrake}",
-                style: TextStyle(fontSize: 15, color: Colors.blue),
-              ),
-              Text(
-                "DRT pressed : ${drivingData.countDRT}",
-                style: TextStyle(fontSize: 15, color: Colors.blue),
-              ),
-              Text(
-                "Total Time: ${drivingData.elapsedTime.inMinutes.toString().padLeft(2, '0')}:${(drivingData.elapsedTime.inSeconds % 60).toString().padLeft(2, '0')}",
-                style: TextStyle(fontSize: 15, color: Colors.blue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "DRT pressed : ${drivingData.countDRT}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "DRT mean : ${drivingData.meanDRT}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Total Time: ${drivingData.totalElapsedTime}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Row(
