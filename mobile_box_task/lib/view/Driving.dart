@@ -100,8 +100,8 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown();
     setHasToClickAfterRandomTime();
-    // eure IPv4 Adresse von Wifi
-    socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
+    socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
