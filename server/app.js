@@ -69,14 +69,6 @@ io.on("connection", (socket) => {
     clearInterval(timeElapsed);
   });
 
-  socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
-  });
-
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
-  });
-
   socket.on("gas button has been pressed", () => {
     const initialSpeed = speed; // Anfangsgeschwindigkeit
     const maxSpeed = 250; // Höchstgeschwindigkeit
