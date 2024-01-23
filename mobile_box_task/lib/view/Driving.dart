@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
@@ -12,67 +13,6 @@ class Driving extends StatefulWidget {
 
   @override
   _DrivingState createState() => _DrivingState();
-}
-
-class DrivingData extends ChangeNotifier {
-  //-------- Datenlogging--------------------------------
-  int countGas = 0;
-  int countBrake = 0;
-  int countDRT = 0;
-  late String totalElapsedTime;
-  List<int> drtTimes = [];
-  late String meanDRT;
-
-  brakeButtonPressed() {
-    countBrake += 1;
-    print("brake button pressed: ${countBrake}");
-    // notifyListeners();
-  }
-
-  void gasButtonPressed() {
-    countGas += 1;
-    print("gas button pressed: ${countGas}");
-  }
-
-  void drtButtonPressed(Stopwatch stopwatch) {
-    stopwatch.stop();
-    drtTimes.add(stopwatch.elapsedMilliseconds);
-    print('DRT pressed: ${drtTimes}');
-    countDRT += 1;
-    print('DRT pressed: ${countDRT}');
-  }
-
-// calculate mean of milliSeconds(int) in form 0.00s(String)
-  String calculateDurationMean(List<int> list) {
-    if (list.isNotEmpty) {
-      double meanDuration =
-          list.reduce((value, element) => value + element) / list.length;
-
-      String res = "${(meanDuration / 1000).toStringAsFixed(2)}s";
-      return res;
-    }
-    return "0s";
-  }
-
-// calculate
-  String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    String milliseconds = (duration.inMilliseconds % 1000).toString();
-
-    return '$minutes:$seconds:$milliseconds';
-  }
-
-  void totalTime(Stopwatch stopwatch) {
-    stopwatch.stop();
-    print('Duration: ${stopwatch.elapsed}');
-    totalElapsedTime = formatDuration(stopwatch.elapsed);
-    meanDRT = calculateDurationMean(drtTimes);
-  }
-
-  //--------------------------------------------------------
 }
 
 class _DrivingState extends State<Driving> {
@@ -95,16 +35,24 @@ class _DrivingState extends State<Driving> {
   Stopwatch stopwatchDuration = new Stopwatch();
   Stopwatch stopwatchDRT = new Stopwatch();
 
+  // late String roomName;
+
   @override
   void initState() {
     super.initState();
     startCountdown();
     setHasToClickAfterRandomTime();
+    // socket =IO.io('http://box-task.imis.uni-luebeck.de:3001', <String, dynamic>{
     socket = IO.io('http://box-task-server:3001', <String, dynamic>{
-      // IO.io('http://192.168.178.22:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
+
+    socket.emit("join room", DrivingData.roomName);
+
+    socket.on("welcome", (data) => {DrivingData.roomName += data});
 
     stopwatchDuration.start();
 
@@ -121,6 +69,7 @@ class _DrivingState extends State<Driving> {
         }
 
         socket.emit('boxPosition', boxPosition);
+        // socket.to(roomName).emit('boxPosition', boxPosition);
       });
     });
 
@@ -128,9 +77,9 @@ class _DrivingState extends State<Driving> {
       print('Connected to server');
     });
 
-    // socket.onDisconnect((_) {
-    //   print('Disconnected from server');
-    // });
+    socket.onDisconnect((_) {
+      print('Disconnected from server');
+    });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
@@ -192,6 +141,7 @@ class _DrivingState extends State<Driving> {
 
   void gasPressed() {
     socket.emit("gas button state", true);
+
     gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
       increaseSpeed();
     });
@@ -225,6 +175,14 @@ class _DrivingState extends State<Driving> {
                   style: const TextStyle(fontSize: 60, color: Colors.blue),
                 ),
               ),
+            if (_isReady)
+              Positioned(
+                  top: 20,
+                  left: 60,
+                  child: Text(
+                    '${DrivingData.roomName}',
+                    style: const TextStyle(fontSize: 20, color: Colors.blue),
+                  )),
             if (_isReady)
               Center(
                 child: Stack(

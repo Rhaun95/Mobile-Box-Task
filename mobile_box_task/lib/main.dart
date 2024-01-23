@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:provider/provider.dart';
 
-// void main() {
-//   runApp(MBTApp());
-// }
+import 'provider/DrivingData.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
@@ -30,14 +27,5 @@ class MBTApp extends StatelessWidget {
         ),
       ),
     );
-    // return MaterialApp(
-    //   home: Scaffold(
-    //     appBar: AppBar(
-    //       backgroundColor: Colors.blue,
-    //       title: const Center(child: Text('Startseite Moblie Box Task')),
-    //     ),
-    //     body: const Home(),
-    //   ),
-    // );
   }
 }

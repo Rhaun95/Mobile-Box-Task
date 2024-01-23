@@ -8,6 +8,10 @@
 </head>
 
 <body class="overflow-hidden">
+  <div class="bg-gray-800 font-bold text-2xl text-white stroke-white stroke-2 left-60 " id="showRoom">Room: </div>
+  <input type="text" id="roomName" name="roomName" />
+  <br />
+  <input type="button" value="Absenden" onclick="displayRoomName()">
   <main class="w-screen h-screen bg-gray-800 flex justify-center items-center">
     <ul id="messages"></ul>
     <input
@@ -27,19 +31,39 @@
 </body>
 
 </html>
+<script src="/socket.io/socket.io.js"></script>
 
-<script src="http://box-task.imis.uni-luebeck.de/socket.io/socket.io.js"></script>
+<!-- <script src="http://box-task.imis.uni-luebeck.de/socket.io/socket.io.js"></script> -->
 <script>
+  var roomName = "";
+
   var socket = io();
 
   var messages = document.getElementById("messages");
+
   var gas = document.getElementById("gas");
   var brake = document.getElementById("brake");
   var sum = document.getElementById("sum");
+  var showRoom = document.getElementById("showRoom");
   var drivingBox = document.getElementById("drivingBox");
   var intervalId = null;
   var speed = 0;
   var accelerationFactor = 50;
+  var pressed = false;
+
+
+
+  function displayRoomName() {
+    // Den Wert des Eingabefelds abrufen
+    var roomName = document.getElementById("roomName").value;
+
+    // Den Wert in der Konsole ausgeben
+    console.log("Room Name: " + roomName);
+    showRoom.textContent += " " + roomName;
+    socket.emit("join room", roomName);
+    pressed = true;
+
+  }
 
   function increaseSpeed() {
     if (speed <= 250) {
@@ -104,5 +128,9 @@
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
+
+
+
+
 
 </script>
