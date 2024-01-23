@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
+import 'package:mobile_box_task/view/ReadyToStartPage.dart';
+import 'package:mobile_box_task/view/SliderPage.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
