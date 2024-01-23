@@ -76,11 +76,11 @@ class DrivingData extends ChangeNotifier {
 }
 
 class _DrivingState extends State<Driving> {
+  double _sliderValue = 3.0;
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
   bool _isReady = false;
-  int count = 0;
   late Timer _timer;
   late IO.Socket socket;
   double speed = 0;
@@ -88,6 +88,7 @@ class _DrivingState extends State<Driving> {
   bool isGasPressed = false;
   bool isBrakePressed = false;
   bool hasToClick = false;
+  int count = 0;
 
   Timer? gasTimer;
   Timer? brakeTimer;
@@ -98,7 +99,7 @@ class _DrivingState extends State<Driving> {
   @override
   void initState() {
     super.initState();
-    startCountdown();
+    startCountdown(3);
     setHasToClickAfterRandomTime();
     socket = IO.io('http://box-task-server:3001', <String, dynamic>{
       // IO.io('http://192.168.178.22:3001', <String, dynamic>{
@@ -141,15 +142,26 @@ class _DrivingState extends State<Driving> {
     socket.connect();
   }
 
-  void startCountdown() {
+  void startCountdown(int duration) {
+    count = duration;
     const oneSecond = Duration(seconds: 1);
     _timer = Timer.periodic(oneSecond, (timer) {
       setState(() {
         if (count > 0) {
           count--;
         } else {
-          _isReady = true;
+          if (ReadyToStartPage.isChecked) {
+            if (_isReady) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CompletePage()));
+            } else {
+              startCountdown(4);
+            }
+          }
           timer.cancel();
+          _isReady = true;
         }
       });
     });
@@ -226,6 +238,16 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
+              if (ReadyToStartPage.isChecked)
+                Positioned(
+                  top: 16,
+                  left: MediaQuery.of(context).size.width * 0.49,
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(fontSize: 40, color: Colors.blue),
+                  ),
+                ),
+            if (_isReady)
               Center(
                 child: Stack(
                   alignment: Alignment.center,
@@ -253,20 +275,20 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Positioned(
-                left: 16,
-                top: 16,
-                child: IconButton(
-                  onPressed: () {
-                    drivingData.totalTime(stopwatchDuration);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CompletePage()));
-                  },
-                  icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
+              if (!ReadyToStartPage.isChecked)
+                Positioned(
+                  left: 16,
+                  top: 16,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CompletePage()));
+                    },
+                    icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
+                  ),
                 ),
-              ),
             if (_isReady)
               Positioned(
                 child: Center(
@@ -292,9 +314,8 @@ class _DrivingState extends State<Driving> {
                           height: 75.0,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors
-                                  .black, // Setzen Sie die Border-Color hier
-                              width: 2.0, // Setzen Sie die Border-Width hier
+                              color: Colors.black,
+                              width: 2.0,
                             ),
                           ),
                         ),
@@ -303,77 +324,103 @@ class _DrivingState extends State<Driving> {
                   ),
                 ),
               ),
+            // if (_isReady)
+            //   Positioned(
+            //     left: 16,
+            //     bottom: 16,
+            //     child: GestureDetector(
+            //       onLongPressStart: (_) {
+            //         brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
+            //             (timer) {
+            //           decreaseSpeed();
+            //         });
+            //       },
+            //       onLongPressEnd: (_) {
+            //         brakeTimer?.cancel();
+            //         accelerationFactor = 1;
+            //       },
+            //       child: ElevatedButton(
+            //         onPressed: () {},
+            //         style: ElevatedButton.styleFrom(
+            //           foregroundColor: Colors.white,
+            //           backgroundColor: Colors.blueGrey,
+            //           padding: const EdgeInsets.all(16),
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(8.0),
+            //           ),
+            //           elevation: 4,
+            //         ),
+            //         child: const SizedBox(
+            //             width: 60,
+            //             height: 60,
+            //             child: Center(
+            //               child: Text("Brake"),
+            //             )),
+            //       ),
+            //     ),
+            //   ),
             if (_isReady)
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: SliderWidget(
+                  sliderValue: _sliderValue,
+                  onSliderChanged: (value) {
+                    setState(() {
+                      _sliderValue = value;
+                    });
+                  },
+                  onSliderChangeEnd: (value) {
+                    if (_sliderValue != 3.0) {
+                      setState(() {
+                        _sliderValue = 3.0;
+                      });
+                      print('Selected Level: $_sliderValue');
+                    }
+                  },
+                ),
+              ),
+            // Positioned(
+            //   right: 16,
+            //   bottom: 16,
+            //   child: GestureDetector(
+            //     onLongPressStart: (_) {
+            //       gasPressed();
+            //       gasTimer = Timer.periodic(const Duration(milliseconds: 1),
+            //           (timer) {
+            //         increaseSpeed();
+            //       });
+            //     },
+            //     onLongPressEnd: (_) {
+            //       gasTimer?.cancel();
+            //       accelerationFactor = 1;
+            //       noGasPressed();
+            //     },
+            //     child: ElevatedButton(
+            //       onPressed: () {},
+            //       style: ElevatedButton.styleFrom(
+            //         foregroundColor: Colors.white,
+            //         backgroundColor: Colors.blueGrey,
+            //         padding: const EdgeInsets.all(16),
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(8.0),
+            //         ),
+            //         elevation: 4,
+            //       ),
+            //       child: const SizedBox(
+            //           width: 60,
+            //           height: 60,
+            //           child: Center(
+            //             child: Text("Gas"),
+            //           )),
+            //     ),
+            //   ),
+            // ),
+
+            if (_isReady && hasToClick)
               Positioned(
                 left: 16,
                 bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    drivingData.brakeButtonPressed();
-                    brakePressed();
-                  },
-                  onLongPressEnd: (_) {
-                    brakeTimer?.cancel();
-                    accelerationFactor = 1;
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Brake"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady)
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    drivingData.gasButtonPressed();
-                    gasPressed();
-                  },
-                  onLongPressEnd: (_) {
-                    gasTimer?.cancel();
-                    accelerationFactor = 1;
-                    noGasPressed();
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Gas"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady && hasToClick)
-              Positioned(
-                right: 16,
-                bottom: 100,
                 child: ElevatedButton(
                   onPressed: () {
                     drtPressed();
