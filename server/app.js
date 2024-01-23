@@ -63,6 +63,7 @@ io.on("connection", (socket) => {
   }, 100);
 
   socket.on("gas button state", (pressed) => {
+    // socket.join(roomId);
     isGasPressed = pressed;
   });
 

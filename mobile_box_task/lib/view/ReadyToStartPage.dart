@@ -1,11 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
-class ReadyToStartPage extends StatelessWidget {
+class ReadyToStartPage extends StatefulWidget {
   const ReadyToStartPage({super.key});
+  static bool isChecked = false;
 
+  @override
+  State<ReadyToStartPage> createState() => _ReadyToStartPageState();
+}
+
+class _ReadyToStartPageState extends State<ReadyToStartPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +23,28 @@ class ReadyToStartPage extends StatelessWidget {
         ),
         body: Stack(
           children: [
+            const Positioned(
+              right: 15,
+              top: 55,
+              child: Text(
+                "with Timer",
+                style: TextStyle(fontSize: 15, color: Colors.blue),
+              ),
+            ),
+            Positioned(
+              right: 16,
+              top: 16,
+              child: CupertinoSwitch(
+                activeColor: Colors.blue,
+                value: ReadyToStartPage.isChecked,
+                onChanged: (value) {
+                  setState(() {
+                    ReadyToStartPage.isChecked = value;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
             Positioned(
               left: 16,
               top: 16,
