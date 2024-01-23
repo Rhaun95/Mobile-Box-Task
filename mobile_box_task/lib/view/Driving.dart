@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
+import 'package:mobile_box_task/view/SliderPage.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
@@ -15,6 +16,7 @@ class Driving extends StatefulWidget {
 }
 
 class _DrivingState extends State<Driving> {
+  double _sliderValue = 3.0;
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
@@ -236,82 +238,103 @@ class _DrivingState extends State<Driving> {
                   ),
                 ),
               ),
+            // if (_isReady)
+            //   Positioned(
+            //     left: 16,
+            //     bottom: 16,
+            //     child: GestureDetector(
+            //       onLongPressStart: (_) {
+            //         brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
+            //             (timer) {
+            //           decreaseSpeed();
+            //         });
+            //       },
+            //       onLongPressEnd: (_) {
+            //         brakeTimer?.cancel();
+            //         accelerationFactor = 1;
+            //       },
+            //       child: ElevatedButton(
+            //         onPressed: () {},
+            //         style: ElevatedButton.styleFrom(
+            //           foregroundColor: Colors.white,
+            //           backgroundColor: Colors.blueGrey,
+            //           padding: const EdgeInsets.all(16),
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(8.0),
+            //           ),
+            //           elevation: 4,
+            //         ),
+            //         child: const SizedBox(
+            //             width: 60,
+            //             height: 60,
+            //             child: Center(
+            //               child: Text("Brake"),
+            //             )),
+            //       ),
+            //     ),
+            //   ),
             if (_isReady)
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: SliderWidget(
+                  sliderValue: _sliderValue,
+                  onSliderChanged: (value) {
+                    setState(() {
+                      _sliderValue = value;
+                    });
+                  },
+                  onSliderChangeEnd: (value) {
+                    if (_sliderValue != 3.0) {
+                      setState(() {
+                        _sliderValue = 3.0;
+                      });
+                      print('Selected Level: $_sliderValue');
+                    }
+                  },
+                ),
+              ),
+            // Positioned(
+            //   right: 16,
+            //   bottom: 16,
+            //   child: GestureDetector(
+            //     onLongPressStart: (_) {
+            //       gasPressed();
+            //       gasTimer = Timer.periodic(const Duration(milliseconds: 1),
+            //           (timer) {
+            //         increaseSpeed();
+            //       });
+            //     },
+            //     onLongPressEnd: (_) {
+            //       gasTimer?.cancel();
+            //       accelerationFactor = 1;
+            //       noGasPressed();
+            //     },
+            //     child: ElevatedButton(
+            //       onPressed: () {},
+            //       style: ElevatedButton.styleFrom(
+            //         foregroundColor: Colors.white,
+            //         backgroundColor: Colors.blueGrey,
+            //         padding: const EdgeInsets.all(16),
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(8.0),
+            //         ),
+            //         elevation: 4,
+            //       ),
+            //       child: const SizedBox(
+            //           width: 60,
+            //           height: 60,
+            //           child: Center(
+            //             child: Text("Gas"),
+            //           )),
+            //     ),
+            //   ),
+            // ),
+
+            if (_isReady && hasToClick)
               Positioned(
                 left: 16,
                 bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
-                        (timer) {
-                      decreaseSpeed();
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    brakeTimer?.cancel();
-                    accelerationFactor = 1;
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Brake"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady)
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    gasPressed();
-                    gasTimer = Timer.periodic(const Duration(milliseconds: 1),
-                        (timer) {
-                      increaseSpeed();
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    gasTimer?.cancel();
-                    accelerationFactor = 1;
-                    noGasPressed();
-                  },
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Center(
-                          child: Text("Gas"),
-                        )),
-                  ),
-                ),
-              ),
-            if (_isReady && hasToClick)
-              Positioned(
-                right: 16,
-                bottom: 100,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
