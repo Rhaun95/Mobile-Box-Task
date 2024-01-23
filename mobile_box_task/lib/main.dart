@@ -3,6 +3,8 @@ import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:provider/provider.dart';
 
+import 'provider/DrivingData.dart';
+
 // void main() {
 //   runApp(MBTApp());
 // }

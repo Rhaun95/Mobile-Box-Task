@@ -27,8 +27,9 @@
 </body>
 
 </html>
+<script src="/socket.io/socket.io.js"></script>
 
-<script src="http://box-task.imis.uni-luebeck.de/socket.io/socket.io.js"></script>
+<!-- <script src="http://box-task.imis.uni-luebeck.de/socket.io/socket.io.js"></script> -->
 <script>
   var socket = io();
 
@@ -40,6 +41,9 @@
   var intervalId = null;
   var speed = 0;
   var accelerationFactor = 50;
+  var roomName = " ";
+  console.log("index room:", roomName)
+
 
   function increaseSpeed() {
     if (speed <= 250) {
@@ -104,5 +108,18 @@
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
+
+  socket.on("join room", async (data) => {
+
+    roomName = data
+    var roomElement = document.createElement("div");
+    roomElement.id = "room";
+    roomElement.className = "bg-gray-800 font-bold text-2xl text-white stroke-white stroke-2 left-60";
+    roomElement.textContent = " Room:" + data;
+    document.body.appendChild(roomElement);
+  });
+  console.log("index room:", data)
+
+
 
 </script>

@@ -161,14 +161,34 @@ app.get("/", (req, res) => {
 var speed = 0;
 let isGasPressed = false;
 
+
+let rooms = new Map();
+function saveRooms(roomName) {
+  rooms.set(roomName);
+  console.log("roomlist: ", Array.from(rooms))
+}
+
+
 io.on("connection", (socket) => {
   console.log("user connected");
+
+  socket.on("join room", (data) => {
+    roomName = data
+    socket.join(data);
+    socket.emit("welcome", "welcome");
+    socket.emit("join room to index", data)
+    saveRooms(data);
+
+  })
+
+
+
   setInterval(() => {
     socket.emit("new number", speed);
   }, 100);
-  
+
   socket.on("gas button state", (pressed) => {
-    socket.join(roomId);
+    // socket.join(roomId);
     isGasPressed = pressed;
   });
 
@@ -192,7 +212,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    
+
     clearInterval(speedReductionInterval);
     clearInterval(sinusInterval);
     clearInterval(timeElapsed);
@@ -260,16 +280,16 @@ io.on("connection", (socket) => {
 });
 
 
-const generateRandomRoomName = () => {
-  // Logik zur Generierung einer zufälligen Zeichenfolge
-  // Beispiel: Hier wird eine zufällige Zeichenfolge aus 6 Buchstaben generiert
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  let randomRoomName = '';
-  for (let i = 0; i < 6; i++) {
-    randomRoomName += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return randomRoomName;
-};
+// const generateRandomRoomName = () => {
+//   // Logik zur Generierung einer zufälligen Zeichenfolge
+//   // Beispiel: Hier wird eine zufällige Zeichenfolge aus 6 Buchstaben generiert
+//   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+//   let randomRoomName = '';
+//   for (let i = 0; i < 6; i++) {
+//     randomRoomName += characters.charAt(Math.floor(Math.random() * characters.length));
+//   }
+//   return randomRoomName;
+// };
 
 // socket.on('joinRandomRoom', () => {
 //   const roomName = generateRandomRoomName();

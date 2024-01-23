@@ -6,6 +6,8 @@ import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
+import '../provider/DrivingData.dart';
+
 class CompletePage extends StatelessWidget {
   const CompletePage({super.key});
 
