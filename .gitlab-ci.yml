@@ -1,0 +1,19 @@
+stages:
+  - deploy
+
+deploy:
+  only:
+    refs:
+      - main
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache rsync openssh
+    - mkdir -p ~/.ssh
+    - echo "$ingpsy01_SSH_PRIVATE_KEY" >> ~/.ssh/id_dsa
+    - chmod 600 ~/.ssh/id_dsa
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - rsync -rav --delete deployment gitlab@141.83.67.189:/var/projects/box-task/
+    - rsync -rav --delete server gitlab@141.83.67.189:/var/projects/box-task/
+    - ssh gitlab@141.83.67.189 "cd /var/projects/box-task/deployment && docker compose up -d --no-deps --build"
+

@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+
+  box-task-nginx:
+    container_name: box-task-nginx
+    image: box-task-nginx
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - box-task-server
+        #ports:
+        #  - "80:80"
+    networks:
+      - nginx-proxy
+
+  box-task-server:
+    container_name: box-task-server
+    image: box-task-server
+    build: ../server/.
+    restart: unless-stopped
+      #    ports: 
+      #      - "3001:3001"
+    networks:
+      - nginx-proxy
+
+
+networks:
+  nginx-proxy:
+    driver: bridge
+    external: true
+    name: proxy-network
+

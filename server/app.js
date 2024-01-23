@@ -128,8 +128,16 @@ const path = require("path");
 var app = express();
 var http = require("http");
 var server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+// const { Server } = require("socket.io");
+// const io = new Server(server);
+const socketIo = require("socket.io")
+
+const io = socketIo(server)
+
+const PORT = 3001;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`listening on *: ${PORT}`);
+});
 
 var livereload = require("livereload");
 var connectLiveReload = require("connect-livereload");
@@ -151,16 +159,10 @@ app.get("/", (req, res) => {
 });
 
 var speed = 0;
-var position = 0;
 let isGasPressed = false;
 
-// Server aufstellen
-io.on("connection", async (socket) => {
-  // eigene Raumnummer speichern
-  const roomId = await generateRandomRoomName();
-
-  console.log(roomId)
-
+io.on("connection", (socket) => {
+  console.log("user connected");
   setInterval(() => {
     socket.emit("new number", speed);
   }, 100);
@@ -168,10 +170,9 @@ io.on("connection", async (socket) => {
   socket.on("gas button state", (pressed) => {
     socket.join(roomId);
     isGasPressed = pressed;
-    console.log(pressed);
   });
 
-  const mu = 0.02; // Rollwiderstandskoeffizient
+  const mu = 0.015; // Rollwiderstandskoeffizient
   const m = 1500; // Masse des Autos in kg
   const g = 9.81; // Gravitation
   const speedReductionInterval = setInterval(() => {
@@ -193,23 +194,15 @@ io.on("connection", async (socket) => {
     console.log("user disconnected");
     
     clearInterval(speedReductionInterval);
-  });
-
-  socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
-  });
-
-  socket.broadcast.emit("hi");
-
-  socket.on("chat message", (msg) => {
-    socket.emit("chat message", msg);
+    clearInterval(sinusInterval);
+    clearInterval(timeElapsed);
   });
 
   socket.on("gas button has been pressed", () => {
     const initialSpeed = speed; // Anfangsgeschwindigkeit
-    const maxSpeed = 200; // Höchstgeschwindigkeit
+    const maxSpeed = 250; // Höchstgeschwindigkeit
     const accelerationTime = 10; // Zeit in Sekunden
-    const deltaTime = 0.004; // Zeitintervall
+    const deltaTime = 0.005; // Zeitintervall
 
     const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
@@ -230,7 +223,7 @@ io.on("connection", async (socket) => {
 
     const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
 
-    const speedFactor = speed / 200; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
+    const speedFactor = speed / 250; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
 
     const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
 
@@ -244,12 +237,26 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("boxPosition", function (data) {
-    socket.emit("new number", data);
-  });
-});
+    // socket.emit("new number", data);
+    io.emit("update boxPosition", data);
 
-server.listen(3001, () => {
-  console.log("listening on *:3001");
+  });
+  let time = 0;
+  const timeElapsed = setInterval(() => {
+    // console.log(time);
+    time += 0.25;
+  }, 10);
+
+  const sinusInterval = setInterval(() => {
+    if (speed >= 1) {
+      const sinus = Math.sin((0.625 * Math.PI * time) / 60);
+      speed += sinus;
+
+      speed = Math.max(0, Math.min(speed, 250));
+
+      socket.emit("new number", speed);
+    }
+  }, 50);
 });
 
 

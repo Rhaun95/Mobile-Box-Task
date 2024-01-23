@@ -2,13 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/main.dart';
+import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/widget/Button.dart';
+import 'package:provider/provider.dart';
 
 class CompletePage extends StatelessWidget {
   const CompletePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    DrivingData drivingData = Provider.of<DrivingData>(context);
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -18,19 +22,42 @@ class CompletePage extends StatelessWidget {
         body: Center(
           child: Column(
             children: [
-              const SizedBox(height: 20),
               const Text(
                 "Complete",
                 style: TextStyle(fontSize: 40, color: Colors.blue),
               ),
-              const SizedBox(height: 20),
-              Text(
-                "Querfehler: 123 ",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Gas pressed: ${drivingData.countGas} ",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Brake pressed : ${drivingData.countBrake}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                ],
               ),
-              Text(
-                "Längsfehler: 21",
-                style: TextStyle(fontSize: 24, color: Colors.blue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "DRT pressed : ${drivingData.countDRT}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "DRT mean : ${drivingData.meanDRT}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Total Time: ${drivingData.totalElapsedTime}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Row(
@@ -49,7 +76,7 @@ class CompletePage extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => const MBTApp()));
                       },
-                      text: "Back To Home Page"),
+                      text: "Home"),
                   const SizedBox(width: 50),
                   Button(onPressed: () => exit(0), text: "Exit"),
                 ],

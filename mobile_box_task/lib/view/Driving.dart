@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
-import 'package:mobile_box_task/view/ReadyToStartPage.dart';
-import 'package:mobile_box_task/view/SliderPage.dart';
+import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
@@ -13,6 +12,67 @@ class Driving extends StatefulWidget {
 
   @override
   _DrivingState createState() => _DrivingState();
+}
+
+class DrivingData extends ChangeNotifier {
+  //-------- Datenlogging--------------------------------
+  int countGas = 0;
+  int countBrake = 0;
+  int countDRT = 0;
+  late String totalElapsedTime;
+  List<int> drtTimes = [];
+  late String meanDRT;
+
+  brakeButtonPressed() {
+    countBrake += 1;
+    print("brake button pressed: ${countBrake}");
+    // notifyListeners();
+  }
+
+  void gasButtonPressed() {
+    countGas += 1;
+    print("gas button pressed: ${countGas}");
+  }
+
+  void drtButtonPressed(Stopwatch stopwatch) {
+    stopwatch.stop();
+    drtTimes.add(stopwatch.elapsedMilliseconds);
+    print('DRT pressed: ${drtTimes}');
+    countDRT += 1;
+    print('DRT pressed: ${countDRT}');
+  }
+
+// calculate mean of milliSeconds(int) in form 0.00s(String)
+  String calculateDurationMean(List<int> list) {
+    if (list.isNotEmpty) {
+      double meanDuration =
+          list.reduce((value, element) => value + element) / list.length;
+
+      String res = "${(meanDuration / 1000).toStringAsFixed(2)}s";
+      return res;
+    }
+    return "0s";
+  }
+
+// calculate
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    String milliseconds = (duration.inMilliseconds % 1000).toString();
+
+    return '$minutes:$seconds:$milliseconds';
+  }
+
+  void totalTime(Stopwatch stopwatch) {
+    stopwatch.stop();
+    print('Duration: ${stopwatch.elapsed}');
+    totalElapsedTime = formatDuration(stopwatch.elapsed);
+    meanDRT = calculateDurationMean(drtTimes);
+  }
+
+  //--------------------------------------------------------
 }
 
 class _DrivingState extends State<Driving> {
@@ -30,15 +90,24 @@ class _DrivingState extends State<Driving> {
   bool hasToClick = false;
   int count = 0;
 
+  Timer? gasTimer;
+  Timer? brakeTimer;
+
+  Stopwatch stopwatchDuration = new Stopwatch();
+  Stopwatch stopwatchDRT = new Stopwatch();
+
   @override
   void initState() {
     super.initState();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://localhost:3001', <String, dynamic>{
+    socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
+
+    stopwatchDuration.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
@@ -51,6 +120,7 @@ class _DrivingState extends State<Driving> {
         } else {
           boxPosition = 0;
         }
+
         socket.emit('boxPosition', boxPosition);
       });
     });
@@ -59,9 +129,9 @@ class _DrivingState extends State<Driving> {
       print('Connected to server');
     });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
+    // socket.onDisconnect((_) {
+    //   print('Disconnected from server');
+    // });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
@@ -104,22 +174,21 @@ class _DrivingState extends State<Driving> {
     super.dispose();
   }
 
-  Timer? gasTimer;
-  Timer? brakeTimer;
-
-  void increaseSpeed() {
-    setState(() {
-      socket.emit("gas button has been pressed", speed);
-    });
-  }
-
   void setHasToClickAfterRandomTime() {
     Timer.periodic(Duration(seconds: 3 + Random().nextInt(3)), (timer) {
       setState(() {
         hasToClick = true;
         Vibration.vibrate(duration: 100);
         timer.cancel();
+        stopwatchDRT.start();
       });
+    });
+  }
+
+  void drtPressed() {
+    setState(() {
+      hasToClick = false;
+      setHasToClickAfterRandomTime();
     });
   }
 
@@ -135,10 +204,27 @@ class _DrivingState extends State<Driving> {
 
   void gasPressed() {
     socket.emit("gas button state", true);
+    gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+      increaseSpeed();
+    });
+  }
+
+  void increaseSpeed() {
+    setState(() {
+      socket.emit("gas button has been pressed", speed);
+    });
+  }
+
+  void brakePressed() {
+    brakeTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+      decreaseSpeed();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    DrivingData drivingData = Provider.of<DrivingData>(context);
+
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
@@ -210,8 +296,8 @@ class _DrivingState extends State<Driving> {
                     children: <Widget>[
                       Positioned(
                         child: Container(
-                          width: 250.0,
-                          height: 250.0,
+                          width: 175.0,
+                          height: 175.0,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors.black,
@@ -224,8 +310,8 @@ class _DrivingState extends State<Driving> {
                         left: 50,
                         top: 50,
                         child: Container(
-                          width: 150.0,
-                          height: 150.0,
+                          width: 75.0,
+                          height: 75.0,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors.black,
@@ -337,10 +423,8 @@ class _DrivingState extends State<Driving> {
                 bottom: 16,
                 child: ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      hasToClick = false;
-                      setHasToClickAfterRandomTime();
-                    });
+                    drtPressed();
+                    drivingData.drtButtonPressed(stopwatchDRT);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
