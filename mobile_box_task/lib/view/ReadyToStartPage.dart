@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
@@ -62,10 +63,22 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
                 children: [
                   const SizedBox(height: 20),
                   const Text(
-                    "Press start to begin with the Mobile Box Task",
+                    "Write the Code in browser and press the button to start",
                     style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
-                  const SizedBox(height: 10),
+                  Positioned(
+                    top: 100,
+                    child: Text(
+                      '${DrivingData.roomName}',
+                      style: TextStyle(fontSize: 40, color: Colors.blue),
+                    ),
+                  ),
+
+                  // const Text(
+                  //   "Press start to begin with the Mobile Box Task",
+                  //   style: TextStyle(fontSize: 20, color: Colors.blue),
+                  // ),
+                  // const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 50.0),
                     child: Column(
