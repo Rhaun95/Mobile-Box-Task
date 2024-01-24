@@ -48,7 +48,7 @@ class _DrivingState extends State<Driving> {
     startCountdown(3);
     setHasToClickAfterRandomTime();
     // socket =IO.io('http://box-task.imis.uni-luebeck.de:3001', <String, dynamic>{
-    socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+    socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
       // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
 
       'transports': ['websocket'],
@@ -149,6 +149,9 @@ class _DrivingState extends State<Driving> {
   }
 
   void noGasPressed() {
+    gasTimer!.cancel();
+    brakeTimer!.cancel();
+    accelerationFactor = 1;
     socket.emit("gas button state", false);
   }
 
@@ -336,15 +339,22 @@ class _DrivingState extends State<Driving> {
                   onSliderChanged: (value) {
                     setState(() {
                       _sliderValue = value;
+                      if (_sliderValue > 3) {
+                        // Gas pressed
+                        gasPressed();
+                      } else if (_sliderValue < 3) {
+                        // Brake pressed
+                        brakePressed();
+                      } else {
+                        noGasPressed();
+                      }
                     });
                   },
                   onSliderChangeEnd: (value) {
-                    if (_sliderValue != 3.0) {
-                      setState(() {
-                        _sliderValue = 3.0;
-                      });
-                      print('Selected Level: $_sliderValue');
-                    }
+                    setState(() {
+                      _sliderValue = 3.0;
+                      noGasPressed(); // Release gas/brake when slider is released
+                    });
                   },
                 ),
               ),
