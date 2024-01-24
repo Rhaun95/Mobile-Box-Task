@@ -47,9 +47,10 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
-    // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
-    socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
+    // socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
+    socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
@@ -195,7 +196,7 @@ class _DrivingState extends State<Driving> {
                   top: 20,
                   left: 60,
                   child: Text(
-                    '${DrivingData.roomName}',
+                    'Room Name: ${DrivingData.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   )),
 
@@ -208,14 +209,6 @@ class _DrivingState extends State<Driving> {
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
-            if (_isReady)
-              Positioned(
-                  top: 20,
-                  left: 60,
-                  child: Text(
-                    '"Room Name: "+ ${DrivingData.roomName}',
-                    style: const TextStyle(fontSize: 20, color: Colors.blue),
-                  )),
             if (_isReady)
               Center(
                 child: Stack(
