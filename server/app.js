@@ -2,14 +2,14 @@ const express = require("express");
 const app = express();
 
 const { createServer } = require("http");
-const SocketIO = require("socket.io")
+const SocketIO = require("socket.io");
 
 const httpServer = createServer(app);
-const io = SocketIO(httpServer, { path: '/socket.io' })
+const io = SocketIO(httpServer, { path: "/socket.io" });
 
 const PORT = 3001;
 
-httpServer.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`server listening on *: ${PORT}`);
 });
 
@@ -34,24 +34,22 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-
 var speed = 0;
 let isGasPressed = false;
 
 let rooms = new Map();
 function saveRooms(roomName) {
   rooms.set(roomName);
-  console.log("roomlist: ", Array.from(rooms))
+  console.log("roomlist: ", Array.from(rooms));
 }
 
 let roomName;
 
 io.on("connection", (socket) => {
-
   console.log("client is connected", socket.id);
 
   socket.on("join room", (data) => {
-    roomName = data
+    roomName = data;
     socket.join(roomName);
     socket.emit("welcome", "welcome1");
     saveRooms(data);
@@ -84,8 +82,8 @@ io.on("connection", (socket) => {
     }
   }, 1);
 
-
   socket.on("gas button has been pressed", () => {
+    console.log("currently speeding");
     const initialSpeed = speed; // Anfangsgeschwindigkeit
     const maxSpeed = 250; // Höchstgeschwindigkeit
     const accelerationTime = 10; // Zeit in Sekunden
@@ -107,6 +105,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("brake button pressed", () => {
+    console.log("currently braking");
+
     const brakeFriction = 0.9; //Bremskoeffizient
 
     const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
@@ -128,26 +128,25 @@ io.on("connection", (socket) => {
   socket.on("boxPosition", function (data) {
     // socket.emit("new number", data);
     socket.to(roomName).emit("update boxPosition", data);
-
   });
   let time = 0;
   const timeElapsed = setInterval(() => {
-    // console.log(time);
     time += 0.25;
   }, 10);
 
+  let isSinusEnabled = false;
+
   const sinusInterval = setInterval(() => {
-    if (speed >= 1) {
+    if (isSinusEnabled && speed >= 1) {
+      console.log("sinus interval on");
       const sinus = Math.sin((0.625 * Math.PI * time) / 60);
       speed += sinus;
 
       speed = Math.max(0, Math.min(speed, 250));
 
       socket.to(roomName).emit("new number", speed);
-      // socket.emit("new number", speed);
     }
   }, 50);
-
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
@@ -156,5 +155,4 @@ io.on("connection", (socket) => {
     clearInterval(sinusInterval);
     clearInterval(timeElapsed);
   });
-
-})
+});
