@@ -61,13 +61,12 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const SizedBox(height: 20),
                   const Text(
                     "Write the Code in browser and press the button to start",
                     style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                   Positioned(
-                    top: 100,
+                    top: 330,
                     child: Text(
                       '${DrivingData.roomName}',
                       style: TextStyle(fontSize: 40, color: Colors.blue),
