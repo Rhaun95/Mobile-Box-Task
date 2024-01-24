@@ -15,19 +15,19 @@ httpServer.listen(PORT, "0.0.0.0", () => {
 
 const path = require("path");
 
-var livereload = require("livereload");
-var connectLiveReload = require("connect-livereload");
+// var livereload = require("livereload");
+// var connectLiveReload = require("connect-livereload");
 
-const liveReloadServer = livereload.createServer();
-liveReloadServer.server.once("connection", () => {
-  setTimeout(() => {
-    liveReloadServer.refresh("/");
-  }, 1);
-});
+// const liveReloadServer = livereload.createServer();
+// liveReloadServer.server.once("connection", () => {
+//   setTimeout(() => {
+//     liveReloadServer.refresh("/");
+//   }, 1);
+// });
 
-app.use(connectLiveReload());
+// app.use(connectLiveReload());
 
-app.set("view engine", "ejs");
+// app.set("view engine", "ejs");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
