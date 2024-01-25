@@ -35,7 +35,9 @@ app.get("/", (req, res) => {
 });
 
 var speed = 0;
+var sliderValue = 0;
 let isGasPressed = false;
+let isBrakePressed = false;
 
 let rooms = new Map();
 function saveRooms(roomName) {
@@ -65,6 +67,11 @@ io.on("connection", (socket) => {
     isGasPressed = pressed;
   });
 
+  socket.on("brake button state", (pressedB) => {
+    // socket.join(roomId);
+    isBrakePressed = pressedB;
+  });
+
   const mu = 0.015; // Rollwiderstandskoeffizient
   const m = 1500; // Masse des Autos in kg
   const g = 9.81; // Gravitation
@@ -82,22 +89,27 @@ io.on("connection", (socket) => {
     }
   }, 1);
 
+  socket.on("slider change", (_sliderValue) => {
+    sliderValue = _sliderValue / 100;
+  });
+
   socket.on("gas button has been pressed", () => {
-    console.log("currently speeding");
-    const initialSpeed = speed; // Anfangsgeschwindigkeit
-    const maxSpeed = 250; // Höchstgeschwindigkeit
-    const accelerationTime = 10; // Zeit in Sekunden
-    const deltaTime = 0.005; // Zeitintervall
+    if (isGasPressed && sliderValue > 0) {
+      const initialSpeed = speed; // Anfangsgeschwindigkeit
+      const maxSpeed = 250; // Höchstgeschwindigkeit
+      const accelerationTime = 10; // Zeit in Sekunden
+      const deltaTime = 0.005; // Zeitintervall
 
-    const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
+      const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
-    const deltaV = acceleration * deltaTime; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
+      const deltaV = acceleration * deltaTime * sliderValue; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
 
-    speed += deltaV;
+      speed = speed + deltaV;
 
-    if (speed > maxSpeed) speed = maxSpeed;
-    // io.emit("new number", speed);
-    socket.to(roomName).emit("new number", speed);
+      if (speed > maxSpeed) speed = maxSpeed;
+      // io.emit("new number", speed);
+      socket.to(roomName).emit("new number", speed);
+    }
   });
 
   socket.on("gas button released", () => {
@@ -105,24 +117,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("brake button pressed", () => {
-    console.log("currently braking");
+    if (isBrakePressed && sliderValue < 0) {
+      const brakeFriction = 0.9; //Bremskoeffizient
 
-    const brakeFriction = 0.9; //Bremskoeffizient
+      const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
 
-    const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
+      const speedFactor = speed / 250; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
 
-    const speedFactor = speed / 250; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
+      const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
 
-    const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
+      const delay = currentBrakeForce / m; //Verzögerung = aktuelle Bremskraft / Masse
 
-    const delay = currentBrakeForce / m; //Verzögerung = aktuelle Bremskraft / Masse
+      speed += delay * (sliderValue / 10);
 
-    speed -= delay * 0.1;
+      if (speed < 0) speed = 0;
 
-    if (speed < 0) speed = 0;
-
-    // socket.emit("new number", speed);
-    socket.to(roomName).emit("new number", speed);
+      // socket.emit("new number", speed);
+      socket.to(roomName).emit("new number", speed);
+    }
   });
 
   socket.on("boxPosition", function (data) {
