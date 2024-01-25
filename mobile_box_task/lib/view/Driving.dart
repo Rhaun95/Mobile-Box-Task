@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
@@ -46,10 +47,10 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    // socket =IO.io('http://box-task.imis.uni-luebeck.de:3001', <String, dynamic>{
-    socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
+    socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
+      // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
       // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
-
       'transports': ['websocket'],
       'autoConnect': true,
     });
@@ -78,9 +79,13 @@ class _DrivingState extends State<Driving> {
       print('Connected to server');
     });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
+    // socket.onDisconnect((_) {
+    //   print('Disconnected from server');
+    // });
+
+    //     socket.on('disconnect', (_) {
+    //   print('Disconnected from server');
+    // });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
@@ -116,10 +121,21 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  void disconnectFromFlutter() {
+    // send the leave event to server
+    socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
+
+    // client disconnect
+    socket.emit('disconnect');
+    // socket.disconnect();
+  }
+
   @override
   void dispose() {
-    _timer.cancel();
+    disconnectFromFlutter();
     socket.disconnect();
+
+    _timer.cancel();
     super.dispose();
   }
 
@@ -164,6 +180,8 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  // void increaseSpeed() {}
+
   void brakePressed() {
     setState(() {
       brakeTimer?.cancel();
@@ -207,7 +225,7 @@ class _DrivingState extends State<Driving> {
                   top: 20,
                   left: 60,
                   child: Text(
-                    DrivingData.roomName,
+                    'Room Name: ${DrivingData.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   )),
             if (ReadyToStartPage.isChecked)
@@ -219,14 +237,6 @@ class _DrivingState extends State<Driving> {
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
-            if (_isReady)
-              Positioned(
-                  top: 20,
-                  left: 60,
-                  child: Text(
-                    DrivingData.roomName,
-                    style: const TextStyle(fontSize: 20, color: Colors.blue),
-                  )),
             if (_isReady)
               Center(
                 child: Stack(
@@ -262,6 +272,7 @@ class _DrivingState extends State<Driving> {
                   child: IconButton(
                     onPressed: () {
                       drivingData.totalTime(stopwatchDuration);
+                      disconnectFromFlutter();
                       Navigator.push(
                           context,
                           MaterialPageRoute(

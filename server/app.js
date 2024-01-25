@@ -39,11 +39,7 @@ var sliderValue = 0;
 let isGasPressed = false;
 let isBrakePressed = false;
 
-let rooms = new Map();
-function saveRooms(roomName) {
-  rooms.set(roomName);
-  console.log("roomlist: ", Array.from(rooms));
-}
+const adapter = io.sockets.adapter;
 
 let roomName;
 
@@ -53,9 +49,23 @@ io.on("connection", (socket) => {
   socket.on("join room", (data) => {
     roomName = data;
     socket.join(roomName);
-    socket.emit("welcome", "welcome1");
-    saveRooms(data);
+    console.log("All rooms: ", adapter.rooms);
+
   });
+
+  socket.on("join room from web", async (room, cb) => {
+    if (io.sockets.adapter.rooms.has(room)) {
+      socket.join(room);
+      console.log("WEB JOINED")
+      console.log("All rooms: ", adapter.rooms);
+      cb(true);
+    } else {
+      console.log(`incorrect roomname`);
+      cb(false);
+    }
+
+  })
+
 
   setInterval(() => {
     // socket.emit("new number", speed);
@@ -160,11 +170,32 @@ io.on("connection", (socket) => {
     }
   }, 50);
 
+  socket.on("leaveRoom", (data) => {
+    console.log("room to leave: ", data.roomName)
+    // roomtoleave = data.roomName;
+    socket.to(data.roomName).emit("leaveRoomFromServer");
+    socket.leave(data.roomName);
+
+    // if (io.sockets.adapter.rooms.has(data.roomName)) {
+    //   delete io.sockets.adapter.rooms[data.roomName];
+    //   console.log("All rooms after leave: ", adapter.rooms);
+
+    // } else {
+    //   console.log(`Room ${roomName} not found.`);
+    // }
+
+  });
+  var roomtoleave;
+
   socket.on("disconnect", () => {
+
+    socket.leave(roomtoleave);
+    socket.disconnect();
     console.log("user disconnected");
-    socket.leave(roomName);
+    console.log("after leave2: ", adapter.rooms);
     clearInterval(speedReductionInterval);
     clearInterval(sinusInterval);
     clearInterval(timeElapsed);
   });
+
 });
