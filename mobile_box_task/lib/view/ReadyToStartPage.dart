@@ -4,6 +4,7 @@ import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
+import 'package:provider/provider.dart';
 
 class ReadyToStartPage extends StatefulWidget {
   const ReadyToStartPage({super.key});
@@ -16,6 +17,11 @@ class ReadyToStartPage extends StatefulWidget {
 class _ReadyToStartPageState extends State<ReadyToStartPage> {
   @override
   Widget build(BuildContext context) {
+    // DrivingData drivingData = Provider.of<DrivingData>(context);
+    // DrivingData.roomName = drivingData.generateRandomString();
+
+    print('YOUR ROOM: ${DrivingData.roomName}');
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -58,26 +64,22 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
               ),
             ),
             Center(
-              child: Stack(
-                alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     "Write the Code in browser and press the button to start",
                     style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
-                  Positioned(
-                    top: 330,
+                  SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.topCenter,
                     child: Text(
                       '${DrivingData.roomName}',
                       style: TextStyle(fontSize: 40, color: Colors.blue),
                     ),
                   ),
-
-                  // const Text(
-                  //   "Press start to begin with the Mobile Box Task",
-                  //   style: TextStyle(fontSize: 20, color: Colors.blue),
-                  // ),
-                  // const SizedBox(height: 10),
+                  const SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 50.0),
                     child: Column(
@@ -99,7 +101,7 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

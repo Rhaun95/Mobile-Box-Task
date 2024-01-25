@@ -2,19 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-String generateRandomString() {
-  const String characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  Random random = Random();
-  String randomString = '';
-
-  for (int i = 0; i < 7; i++) {
-    int randomIndex = random.nextInt(characters.length);
-    randomString += characters[randomIndex];
-  }
-
-  return randomString;
-}
-
 class DrivingData extends ChangeNotifier {
   int countGas = 0;
   int countBrake = 0;
@@ -23,7 +10,20 @@ class DrivingData extends ChangeNotifier {
   List<int> drtTimes = [];
   late String meanDRT;
 
-  static String roomName = generateRandomString();
+  static late String roomName;
+
+  String generateRandomString() {
+    const String characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    Random random = Random();
+    String randomString = '';
+
+    for (int i = 0; i < 7; i++) {
+      int randomIndex = random.nextInt(characters.length);
+      randomString += characters[randomIndex];
+    }
+
+    return randomString;
+  }
 
   brakeButtonPressed() {
     countBrake += 1;

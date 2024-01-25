@@ -12,10 +12,10 @@
     <div class="font-bold text-2xl text-white" id="showRoom">Room: </div>
 
     <main class="w-screen h-screen flex justify-center items-center">
-      <div id="myModal" class=" bg-gray-100 absolute border border-gray-300 shadow-md p-6 rounded-md z-20">
+      <div id="myModal" class=" bg-gray-100 absolute shadow-md p-6 rounded-md z-20">
         <div class="font-bold text-2xl">
-          <span>Room: </span>
-          <input class=" border border-gray-800 pl-3" type="text" id="roomName" name="roomName" />
+          <span id="modalLabel" class="">Room: </span>
+          <input class=" border border-gray-800 pl-3" type="text" id="roomNameInput" name="roomNameInput" />
         </div>
         <input class="w-[75px] h-[35px] text-white bg-gray-600 cursor-pointer stroke-white stroke-2 rounded-lg mt-5"
           type="button" value="Join" onclick="onConfirm()" />
@@ -49,9 +49,6 @@
 <script>
   var roomName = "";
 
-  // var socket =
-  // io.connect('http://box-task.imis.uni-luebeck.de/');
-
   var socket = io();
 
   var messages = document.getElementById("messages");
@@ -61,6 +58,8 @@
   var sum = document.getElementById("sum");
   var showRoom = document.getElementById("showRoom");
   var drivingBox = document.getElementById("drivingBox");
+  var modalLabel = document.getElementById('modalLabel');
+  var roomNameInput = document.getElementById('roomNameInput')
   var intervalId = null;
   var speed = 0;
   var accelerationFactor = 50;
@@ -69,6 +68,11 @@
 
   // join Fenster beim Laden öffnen
   window.onload = openModal;
+  window.close = disconnectSocket;
+
+  function disconnectSocket() {
+    socket.disconnect();
+  }
 
   // Join Fester öffnen
   function openModal() {
@@ -82,21 +86,22 @@
 
   // Join Click event
   function onConfirm() {
-    var inputText = document.getElementById('roomName').value;
-    displayRoomName();
-    closeModal();
-  }
+    //init label
+    modalLabel.textContent = "Room: ";
 
-  function displayRoomName() {
-    // Den Wert des Eingabefelds abrufen
-    var inputText = document.getElementById('roomName').value;
-
-    // Den Wert in der Konsole ausgeben
-    console.log("Room Name: " + inputText);
-    showRoom.textContent += " " + inputText;
-    socket.emit("join room", inputText);
+    // Join process
+    var inputText = roomNameInput.value;
+    socket.emit("join room from web", inputText, (res) => {
+      if (res) {
+        showRoom.textContent += " " + inputText;
+        closeModal();
+      } else {
+        modalLabel.textContent += " incorrect";
+        modalLabel.classList.add('text-red-500');
+        roomNameInput.value = "";
+      }
+    });
     pressed = true;
-
   }
 
   function increaseSpeed() {
@@ -162,6 +167,14 @@
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
+
+  socket.on("leaveRoomFromServer", () => {
+    // socket.leave(showRoom.textContent);
+    socket.disconnect();
+
+    // socket.emit('leaveRoomFromWeb', showRoom.textContent);
+
+  })
 
 
 

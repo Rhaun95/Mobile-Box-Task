@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
@@ -9,8 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
-
-import '../provider/DrivingData.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
@@ -79,9 +78,13 @@ class _DrivingState extends State<Driving> {
       print('Connected to server');
     });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
+    // socket.onDisconnect((_) {
+    //   print('Disconnected from server');
+    // });
+
+    //     socket.on('disconnect', (_) {
+    //   print('Disconnected from server');
+    // });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
@@ -117,10 +120,21 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  void disconnectFromFlutter() {
+    // send the leave event to server
+    socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
+
+    // client disconnect
+    socket.emit('disconnect');
+    // socket.disconnect();
+  }
+
   @override
   void dispose() {
-    _timer.cancel();
+    disconnectFromFlutter();
     socket.disconnect();
+
+    _timer.cancel();
     super.dispose();
   }
 
@@ -142,11 +156,9 @@ class _DrivingState extends State<Driving> {
     });
   }
 
-  void decreaseSpeed() {
-    setState(() {
-      socket.emit("brake button pressed", speed);
-    });
-  }
+  // void decreaseSpeed() {
+
+  // }
 
   void noGasPressed() {
     gasTimer!.cancel();
@@ -157,21 +169,21 @@ class _DrivingState extends State<Driving> {
 
   void gasPressed() {
     socket.emit("gas button state", true);
-
     gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
-      increaseSpeed();
+      setState(() {
+        socket.emit("gas button has been pressed", speed);
+      });
     });
   }
 
-  void increaseSpeed() {
-    setState(() {
-      socket.emit("gas button has been pressed", speed);
-    });
-  }
+  // void increaseSpeed() {}
 
   void brakePressed() {
+    // noGasPressed();
     brakeTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
-      decreaseSpeed();
+      setState(() {
+        socket.emit("brake button pressed", speed);
+      });
     });
   }
 
@@ -244,6 +256,7 @@ class _DrivingState extends State<Driving> {
                   child: IconButton(
                     onPressed: () {
                       drivingData.totalTime(stopwatchDuration);
+                      disconnectFromFlutter();
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -293,10 +306,7 @@ class _DrivingState extends State<Driving> {
             //     bottom: 16,
             //     child: GestureDetector(
             //       onLongPressStart: (_) {
-            //         brakeTimer = Timer.periodic(const Duration(milliseconds: 1),
-            //             (timer) {
-            //           decreaseSpeed();
-            //         });
+            //         brakePressed();
             //       },
             //       onLongPressEnd: (_) {
             //         brakeTimer?.cancel();
@@ -322,6 +332,8 @@ class _DrivingState extends State<Driving> {
             //       ),
             //     ),
             //   ),
+            //------------------------------------------------------------------------
+
             if (_isReady)
               Positioned(
                 right: 16,
@@ -350,16 +362,13 @@ class _DrivingState extends State<Driving> {
                   },
                 ),
               ),
+            // //------------------------------------------------------------------------
             // Positioned(
             //   right: 16,
             //   bottom: 16,
             //   child: GestureDetector(
             //     onLongPressStart: (_) {
             //       gasPressed();
-            //       gasTimer = Timer.periodic(const Duration(milliseconds: 1),
-            //           (timer) {
-            //         increaseSpeed();
-            //       });
             //     },
             //     onLongPressEnd: (_) {
             //       gasTimer?.cancel();
