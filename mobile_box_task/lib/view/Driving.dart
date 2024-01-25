@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes, library_private_types_in_public_api
+
 import 'dart:async';
 import 'dart:math';
 
@@ -19,7 +21,7 @@ class Driving extends StatefulWidget {
 }
 
 class _DrivingState extends State<Driving> {
-  double _sliderValue = 3.0;
+  double _sliderValue = 0;
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
@@ -27,7 +29,6 @@ class _DrivingState extends State<Driving> {
   late Timer _timer;
   late IO.Socket socket;
   double speed = 0;
-  double accelerationFactor = 1;
   bool isGasPressed = false;
   bool isBrakePressed = false;
   bool hasToClick = false;
@@ -36,8 +37,8 @@ class _DrivingState extends State<Driving> {
   Timer? gasTimer;
   Timer? brakeTimer;
 
-  Stopwatch stopwatchDuration = new Stopwatch();
-  Stopwatch stopwatchDRT = new Stopwatch();
+  Stopwatch stopwatchDuration = Stopwatch();
+  Stopwatch stopwatchDRT = Stopwatch();
 
   // late String roomName;
 
@@ -156,22 +157,25 @@ class _DrivingState extends State<Driving> {
     });
   }
 
-  // void decreaseSpeed() {
+  void decreaseSpeed() {
+    setState(() {
+      socket.emit("brake button pressed", speed);
+      socket.emit("brake button state", true);
+    });
+  }
 
-  // }
-
-  void noGasPressed() {
-    gasTimer!.cancel();
-    brakeTimer!.cancel();
-    accelerationFactor = 1;
-    socket.emit("gas button state", false);
+  void increaseSpeed() {
+    setState(() {
+      socket.emit("gas button has been pressed", speed);
+      socket.emit("gas button state", true);
+    });
   }
 
   void gasPressed() {
-    socket.emit("gas button state", true);
-    gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
-      setState(() {
-        socket.emit("gas button has been pressed", speed);
+    setState(() {
+      gasTimer?.cancel();
+      gasTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+        increaseSpeed();
       });
     });
   }
@@ -179,12 +183,25 @@ class _DrivingState extends State<Driving> {
   // void increaseSpeed() {}
 
   void brakePressed() {
-    // noGasPressed();
-    brakeTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
-      setState(() {
-        socket.emit("brake button pressed", speed);
+    setState(() {
+      brakeTimer?.cancel();
+      brakeTimer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+        decreaseSpeed();
       });
     });
+  }
+
+  void updateSliderState() {
+    setState(() {
+      socket.emit("slider change", _sliderValue);
+    });
+  }
+
+  void noInput() {
+    gasTimer!.cancel();
+    brakeTimer!.cancel();
+    socket.emit("gas button state", false);
+    socket.emit("brake button state", false);
   }
 
   @override
@@ -211,7 +228,6 @@ class _DrivingState extends State<Driving> {
                     'Room Name: ${DrivingData.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   )),
-
             if (ReadyToStartPage.isChecked)
               Positioned(
                 top: 16,
@@ -231,13 +247,13 @@ class _DrivingState extends State<Driving> {
                           speed / 2 +
                           boxPosition * 50,
                       child: Container(
-                        width: speed,
-                        height: speed,
+                        width: min(speed, 0.0),
+                        height: min(speed, 0.0),
                         color: Colors.blue,
                         child: Center(
                           child: Text(
                             speed.toInt().toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16.0,
                             ),
@@ -300,40 +316,6 @@ class _DrivingState extends State<Driving> {
                   ),
                 ),
               ),
-            // if (_isReady)
-            //   Positioned(
-            //     left: 16,
-            //     bottom: 16,
-            //     child: GestureDetector(
-            //       onLongPressStart: (_) {
-            //         brakePressed();
-            //       },
-            //       onLongPressEnd: (_) {
-            //         brakeTimer?.cancel();
-            //         accelerationFactor = 1;
-            //       },
-            //       child: ElevatedButton(
-            //         onPressed: () {},
-            //         style: ElevatedButton.styleFrom(
-            //           foregroundColor: Colors.white,
-            //           backgroundColor: Colors.blueGrey,
-            //           padding: const EdgeInsets.all(16),
-            //           shape: RoundedRectangleBorder(
-            //             borderRadius: BorderRadius.circular(8.0),
-            //           ),
-            //           elevation: 4,
-            //         ),
-            //         child: const SizedBox(
-            //             width: 60,
-            //             height: 60,
-            //             child: Center(
-            //               child: Text("Brake"),
-            //             )),
-            //       ),
-            //     ),
-            //   ),
-            //------------------------------------------------------------------------
-
             if (_isReady)
               Positioned(
                 right: 16,
@@ -343,59 +325,28 @@ class _DrivingState extends State<Driving> {
                   onSliderChanged: (value) {
                     setState(() {
                       _sliderValue = value;
-                      if (_sliderValue > 3) {
-                        // Gas pressed
+                      if (_sliderValue > 0) {
                         gasPressed();
-                      } else if (_sliderValue < 3) {
-                        // Brake pressed
+                        updateSliderState();
+                      } else if (_sliderValue < 0) {
                         brakePressed();
-                      } else {
-                        noGasPressed();
+                        updateSliderState();
+                      } else if (_sliderValue == 0) {
+                        noInput();
+                        updateSliderState();
                       }
                     });
                   },
                   onSliderChangeEnd: (value) {
+                    _sliderValue = value;
                     setState(() {
-                      _sliderValue = 3.0;
-                      noGasPressed(); // Release gas/brake when slider is released
+                      _sliderValue = 0.0;
+                      updateSliderState();
+                      noInput();
                     });
                   },
                 ),
               ),
-            // //------------------------------------------------------------------------
-            // Positioned(
-            //   right: 16,
-            //   bottom: 16,
-            //   child: GestureDetector(
-            //     onLongPressStart: (_) {
-            //       gasPressed();
-            //     },
-            //     onLongPressEnd: (_) {
-            //       gasTimer?.cancel();
-            //       accelerationFactor = 1;
-            //       noGasPressed();
-            //     },
-            //     child: ElevatedButton(
-            //       onPressed: () {},
-            //       style: ElevatedButton.styleFrom(
-            //         foregroundColor: Colors.white,
-            //         backgroundColor: Colors.blueGrey,
-            //         padding: const EdgeInsets.all(16),
-            //         shape: RoundedRectangleBorder(
-            //           borderRadius: BorderRadius.circular(8.0),
-            //         ),
-            //         elevation: 4,
-            //       ),
-            //       child: const SizedBox(
-            //           width: 60,
-            //           height: 60,
-            //           child: Center(
-            //             child: Text("Gas"),
-            //           )),
-            //     ),
-            //   ),
-            // ),
-
             if (_isReady && hasToClick)
               Positioned(
                 left: 16,

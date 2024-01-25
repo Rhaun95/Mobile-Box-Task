@@ -37,9 +37,9 @@ class SliderWidget extends StatelessWidget {
             overlayColor:
                 MaterialStateProperty.all(Colors.red.withOpacity(0.5)),
             value: sliderValue,
-            min: 1.0,
-            max: 5.0,
-            divisions: 4,
+            min: -50.0,
+            max: 50.0,
+            divisions: 100,
             onChanged: onSliderChanged,
             onChangeEnd: onSliderChangeEnd,
           ),
