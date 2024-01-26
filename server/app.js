@@ -50,22 +50,19 @@ io.on("connection", (socket) => {
     roomName = data;
     socket.join(roomName);
     console.log("All rooms: ", adapter.rooms);
-
   });
 
   socket.on("join room from web", async (room, cb) => {
     if (io.sockets.adapter.rooms.has(room)) {
       socket.join(room);
-      console.log("WEB JOINED")
+      console.log("WEB JOINED");
       console.log("All rooms: ", adapter.rooms);
       cb(true);
     } else {
       console.log(`incorrect roomname`);
       cb(false);
     }
-
-  })
-
+  });
 
   setInterval(() => {
     // socket.emit("new number", speed);
@@ -100,7 +97,7 @@ io.on("connection", (socket) => {
   }, 1);
 
   socket.on("slider change", (_sliderValue) => {
-    sliderValue = _sliderValue / 100;
+    sliderValue = _sliderValue / 10;
   });
 
   socket.on("gas button has been pressed", () => {
@@ -117,7 +114,6 @@ io.on("connection", (socket) => {
       speed = speed + deltaV;
 
       if (speed > maxSpeed) speed = maxSpeed;
-      // io.emit("new number", speed);
       socket.to(roomName).emit("new number", speed);
     }
   });
@@ -141,27 +137,28 @@ io.on("connection", (socket) => {
       speed += delay * (sliderValue / 10);
 
       if (speed < 0) speed = 0;
-
-      // socket.emit("new number", speed);
       socket.to(roomName).emit("new number", speed);
     }
   });
 
-  socket.on("boxPosition", function (data) {
-    // socket.emit("new number", data);
-    socket.to(roomName).emit("update boxPosition", data);
-  });
   let time = 0;
   const timeElapsed = setInterval(() => {
     time += 0.25;
   }, 10);
 
-  let isSinusEnabled = false;
+  let isSinusEnabled = true;
+
+  socket.on("boxPosition", function (data) {
+    const sinus = Math.sin(((0.75 * Math.PI * time) / 600) * 0.18);
+
+    data += sinus;
+
+    socket.to(roomName).emit("update boxPosition", data);
+  });
 
   const sinusInterval = setInterval(() => {
     if (isSinusEnabled && speed >= 1) {
-      console.log("sinus interval on");
-      const sinus = Math.sin((0.625 * Math.PI * time) / 60);
+      const sinus = Math.sin(((0.625 * Math.PI * time) / 60) * 0.5);
       speed += sinus;
 
       speed = Math.max(0, Math.min(speed, 250));
@@ -171,7 +168,7 @@ io.on("connection", (socket) => {
   }, 50);
 
   socket.on("leaveRoom", (data) => {
-    console.log("room to leave: ", data.roomName)
+    console.log("room to leave: ", data.roomName);
     // roomtoleave = data.roomName;
     socket.to(data.roomName).emit("leaveRoomFromServer");
     socket.leave(data.roomName);
@@ -183,12 +180,10 @@ io.on("connection", (socket) => {
     // } else {
     //   console.log(`Room ${roomName} not found.`);
     // }
-
   });
   var roomtoleave;
 
   socket.on("disconnect", () => {
-
     socket.leave(roomtoleave);
     socket.disconnect();
     console.log("user disconnected");
@@ -197,5 +192,4 @@ io.on("connection", (socket) => {
     clearInterval(sinusInterval);
     clearInterval(timeElapsed);
   });
-
 });
