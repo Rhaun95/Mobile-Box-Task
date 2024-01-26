@@ -41,19 +41,19 @@ let isBrakePressed = false;
 
 const adapter = io.sockets.adapter;
 
-let roomName;
+var roomName = [];
 
 io.on("connection", (socket) => {
   console.log("client is connected", socket.id);
 
   socket.on("join room", (data) => {
-    roomName = data;
+    roomName.push(data);
     socket.join(roomName);
     console.log("All rooms: ", adapter.rooms);
   });
 
   socket.on("join room from web", async (room, cb) => {
-    if (io.sockets.adapter.rooms.has(room)) {
+    if (true) {
       socket.join(room);
       console.log("WEB JOINED");
       console.log("All rooms: ", adapter.rooms);
