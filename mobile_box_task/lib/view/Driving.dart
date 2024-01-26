@@ -47,7 +47,7 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
+    socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
       // socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
       // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
       // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{

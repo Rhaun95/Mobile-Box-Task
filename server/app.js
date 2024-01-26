@@ -149,9 +149,10 @@ io.on("connection", (socket) => {
   let isSinusEnabled = true;
 
   socket.on("boxPosition", function (data) {
-    const sinus = Math.sin(((0.75 * Math.PI * time) / 600) * 0.18);
+    const sinus = Math.sin(((0.75 * Math.PI * time) / 60) * 0.18);
 
     data += sinus;
+    console.log(data);
 
     socket.to(roomName).emit("update boxPosition", data);
   });
