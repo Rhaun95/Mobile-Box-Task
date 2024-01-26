@@ -65,17 +65,14 @@ io.on("connection", (socket) => {
   });
 
   setInterval(() => {
-    // socket.emit("new number", speed);
     socket.to(roomName).emit("new number", speed);
   }, 100);
 
   socket.on("gas button state", (pressed) => {
-    // socket.join(roomId);
     isGasPressed = pressed;
   });
 
   socket.on("brake button state", (pressedB) => {
-    // socket.join(roomId);
     isBrakePressed = pressedB;
   });
 
@@ -91,7 +88,6 @@ io.on("connection", (socket) => {
 
       if (speed < 0) speed = 0;
 
-      //io.emit("new number", speed);
       socket.to(roomName).emit("new number", speed);
     }
   }, 1);
@@ -170,17 +166,8 @@ io.on("connection", (socket) => {
 
   socket.on("leaveRoom", (data) => {
     console.log("room to leave: ", data.roomName);
-    // roomtoleave = data.roomName;
     socket.to(data.roomName).emit("leaveRoomFromServer");
     socket.leave(data.roomName);
-
-    // if (io.sockets.adapter.rooms.has(data.roomName)) {
-    //   delete io.sockets.adapter.rooms[data.roomName];
-    //   console.log("All rooms after leave: ", adapter.rooms);
-
-    // } else {
-    //   console.log(`Room ${roomName} not found.`);
-    // }
   });
   var roomtoleave;
 

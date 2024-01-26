@@ -48,7 +48,6 @@ class _DrivingState extends State<Driving> {
     startCountdown(3);
     setHasToClickAfterRandomTime();
     socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
-      // socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
       // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
       // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
@@ -92,8 +91,6 @@ class _DrivingState extends State<Driving> {
         speed = receivedSpeed.toDouble();
       });
     });
-
-    socket.connect();
   }
 
   void startCountdown(int duration) {
@@ -237,7 +234,7 @@ class _DrivingState extends State<Driving> {
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
-            if (_isReady)
+            if (_isReady) //! Box
               Center(
                 child: Stack(
                   alignment: Alignment.center,
@@ -247,8 +244,8 @@ class _DrivingState extends State<Driving> {
                           speed / 2 +
                           boxPosition * 50,
                       child: Container(
-                        width: min(speed, 0.0),
-                        height: min(speed, 0.0),
+                        width: speed,
+                        height: speed,
                         color: Colors.blue,
                         child: Center(
                           child: Text(
@@ -281,7 +278,7 @@ class _DrivingState extends State<Driving> {
                     icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
                   ),
                 ),
-            if (_isReady)
+            if (_isReady) //!äußere Begrenzung
               Positioned(
                 child: Center(
                   child: Stack(
@@ -297,7 +294,7 @@ class _DrivingState extends State<Driving> {
                             ),
                           ),
                         ),
-                      ),
+                      ), //!innere Begrenzung
                       Positioned(
                         left: 50,
                         top: 50,
