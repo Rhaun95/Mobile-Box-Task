@@ -41,14 +41,15 @@ let isBrakePressed = false;
 
 const adapter = io.sockets.adapter;
 
-var roomName = [];
+// var roomName = [];
+var roomName;
 
 io.on("connection", (socket) => {
   console.log("client is connected", socket.id);
-
   socket.on("join room", (data) => {
-    roomName.push(data);
-    socket.join(roomName);
+    roomName = data;
+    // roomName.push(data);
+    socket.join(data);
     console.log("All rooms: ", adapter.rooms);
   });
 
@@ -64,9 +65,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  setInterval(() => {
-    socket.to(roomName).emit("new number", speed);
-  }, 100);
+  // setInterval(() => {
+  //   socket.to(roomName).emit("new number", speed);
+  // }, 100);
 
   socket.on("gas button state", (pressed) => {
     isGasPressed = pressed;
@@ -169,11 +170,9 @@ io.on("connection", (socket) => {
     socket.to(data.roomName).emit("leaveRoomFromServer");
     socket.leave(data.roomName);
   });
-  var roomtoleave;
 
   socket.on("disconnect", () => {
-    socket.leave(roomtoleave);
-    socket.disconnect();
+    // socket.disconnect();
     console.log("user disconnected");
     console.log("after leave2: ", adapter.rooms);
     clearInterval(speedReductionInterval);

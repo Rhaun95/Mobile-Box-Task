@@ -14,8 +14,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     DrivingData drivingData = Provider.of<DrivingData>(context);
     DrivingData.roomName = drivingData.generateRandomString();
-    // print('YOUR ROOM: ${DrivingData.roomName}');
-//
+    print('YOUR ROOM: ${DrivingData.roomName}');
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Center(
         child: SizedBox(

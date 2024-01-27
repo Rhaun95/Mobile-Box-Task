@@ -4,7 +4,6 @@ import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
-import 'package:provider/provider.dart';
 
 class ReadyToStartPage extends StatefulWidget {
   const ReadyToStartPage({super.key});
@@ -17,11 +16,6 @@ class ReadyToStartPage extends StatefulWidget {
 class _ReadyToStartPageState extends State<ReadyToStartPage> {
   @override
   Widget build(BuildContext context) {
-    // DrivingData drivingData = Provider.of<DrivingData>(context);
-    // DrivingData.roomName = drivingData.generateRandomString();
-
-    print('YOUR ROOM: ${DrivingData.roomName}');
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
