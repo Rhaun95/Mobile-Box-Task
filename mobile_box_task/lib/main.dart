@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_box_task/provider/SocketProvider.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,7 @@ import 'provider/DrivingData.dart';
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DrivingData()),
+    ChangeNotifierProvider(create: (_) => SocketProvider()),
   ], child: const MBTApp()));
 }
 

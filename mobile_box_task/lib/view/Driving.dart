@@ -1,6 +1,7 @@
 // ignore_for_file: library_prefixes, library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
+
+import '../provider/SocketProvider.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
@@ -25,10 +28,10 @@ class _DrivingState extends State<Driving> {
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
-  bool _isReady = false;
+  bool _isReady = true;
   late Timer _timer;
   late IO.Socket socket;
-  double speed = 0;
+  double speed = 0.0;
   bool isGasPressed = false;
   bool isBrakePressed = false;
   bool hasToClick = false;
@@ -40,22 +43,13 @@ class _DrivingState extends State<Driving> {
   Stopwatch stopwatchDuration = Stopwatch();
   Stopwatch stopwatchDRT = Stopwatch();
 
-  // late String roomName;
-
   @override
   void initState() {
     super.initState();
-    startCountdown(3);
+    socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
+
+    // startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
-      // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': true,
-    });
-
-    socket.emit("join room", DrivingData.roomName);
-
     stopwatchDuration.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
@@ -70,12 +64,21 @@ class _DrivingState extends State<Driving> {
           boxPosition = 0;
         }
 
-        socket.emit('boxPosition', boxPosition);
+        socket.emit('boxPosition', {
+          'roomName': DrivingData.roomName,
+          'boxPosition': boxPosition,
+          // 'time': time,
+        });
       });
     });
 
     socket.onConnect((_) {
       print('Connected to server');
+    });
+    socket.on('new number', (receivedSpeed) {
+      setState(() {
+        speed = receivedSpeed["speed"];
+      });
     });
 
     // socket.onDisconnect((_) {
@@ -85,52 +88,44 @@ class _DrivingState extends State<Driving> {
     //     socket.on('disconnect', (_) {
     //   print('Disconnected from server');
     // });
-
-    socket.on('new number', (receivedSpeed) {
-      setState(() {
-        speed = receivedSpeed.toDouble();
-      });
-    });
   }
 
-  void startCountdown(int duration) {
-    count = duration;
-    const oneSecond = Duration(seconds: 1);
-    _timer = Timer.periodic(oneSecond, (timer) {
-      setState(() {
-        if (count > 0) {
-          count--;
-        } else {
-          if (ReadyToStartPage.isChecked) {
-            if (_isReady) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CompletePage()));
-            } else {
-              startCountdown(4);
-            }
-          }
-          timer.cancel();
-          _isReady = true;
-        }
-      });
-    });
-  }
+  // void startCountdown(int duration) {
+  //   count = duration;
+  //   const oneSecond = Duration(seconds: 1);
+  //   _timer = Timer.periodic(oneSecond, (timer) {
+  //     setState(() {
+  //       if (count > 0) {
+  //         count--;
+  //       } else {
+  //         if (ReadyToStartPage.isChecked) {
+  //           if (_isReady) {
+  //             Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                     builder: (context) => const CompletePage()));
+  //           } else {
+  //             startCountdown(4);
+  //           }
+  //         }
+  //         timer.cancel();
+  //         _isReady = true;
+  //       }
+  //     });
+  //   });
+  // }
 
   void disconnectFromFlutter() {
     // send the leave event to server
     socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
-
+    speed = 0;
     // client disconnect
     socket.emit('disconnect');
-    // socket.disconnect();
   }
 
   @override
   void dispose() {
     disconnectFromFlutter();
-    socket.disconnect();
 
     _timer.cancel();
     super.dispose();
@@ -156,15 +151,22 @@ class _DrivingState extends State<Driving> {
 
   void decreaseSpeed() {
     setState(() {
-      socket.emit("brake button pressed", speed);
-      socket.emit("brake button state", true);
+      socket.emit("brake button state",
+          {'roomName': DrivingData.roomName, 'isBrakePressed': true});
+      socket.emit("brake button pressed",
+          {'roomName': DrivingData.roomName, 'speed': speed});
     });
   }
 
   void increaseSpeed() {
     setState(() {
-      socket.emit("gas button has been pressed", speed);
-      socket.emit("gas button state", true);
+      socket.emit("gas button state",
+          {'roomName': DrivingData.roomName, 'isGasPressed': true});
+      socket.emit("gas button has been pressed", {
+        'roomName': DrivingData.roomName,
+        'speed': speed,
+        'sliderValue': _sliderValue
+      });
     });
   }
 
@@ -177,8 +179,6 @@ class _DrivingState extends State<Driving> {
     });
   }
 
-  // void increaseSpeed() {}
-
   void brakePressed() {
     setState(() {
       brakeTimer?.cancel();
@@ -190,20 +190,24 @@ class _DrivingState extends State<Driving> {
 
   void updateSliderState() {
     setState(() {
-      socket.emit("slider change", _sliderValue);
+      socket.emit("slider change",
+          {'roomName': DrivingData.roomName, 'sliderValue': _sliderValue});
     });
   }
 
   void noInput() {
     gasTimer!.cancel();
     brakeTimer!.cancel();
-    socket.emit("gas button state", false);
-    socket.emit("brake button state", false);
+    socket.emit("gas button state",
+        {'roomName': DrivingData.roomName, 'isGasPressed': false});
+    socket.emit("brake button state",
+        {'roomName': DrivingData.roomName, 'isBrakePressed': false});
   }
 
   @override
   Widget build(BuildContext context) {
     DrivingData drivingData = Provider.of<DrivingData>(context);
+    print('Received new speed: $speed');
 
     return Directionality(
       textDirection: TextDirection.ltr,
