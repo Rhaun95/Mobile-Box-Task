@@ -56,12 +56,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(left: 16, top: 16),
+            padding: EdgeInsets.only(left: 16, top: 32),
             child: Text(
               "Mobile",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 80,
+                fontSize: 64,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -72,7 +72,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               "Box",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 80,
+                fontSize: 64,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -83,7 +83,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               "Task",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 80,
+                fontSize: 64,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -98,8 +98,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     children: [
                       Positioned(
                         child: Container(
-                          width: 250,
-                          height: 250,
+                          width: 200,
+                          height: 200,
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.orange, width: 3),
                             borderRadius: BorderRadius.circular(4),
@@ -110,10 +110,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         child: Transform.scale(
                           scale: _animation.value,
                           child: Container(
-                            width: 150,
-                            height: 150,
+                            width: 125,
+                            height: 125,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF06B6D4),
+                              color: const Color(0xFF1d4ed8),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -121,8 +121,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       ),
                       Positioned(
                         child: Container(
-                          width: 100,
-                          height: 100,
+                          width: 75,
+                          height: 75,
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.orange, width: 4),
                             borderRadius: BorderRadius.circular(4),

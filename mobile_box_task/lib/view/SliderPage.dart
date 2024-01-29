@@ -13,38 +13,82 @@ class SliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Selected Level: $sliderValue',
-              style: TextStyle(fontSize: 18),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          RotatedBox(
+            quarterTurns: 3,
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 8.0,
+                trackShape: const RoundedRectSliderTrackShape(),
+                thumbShape: const SquareSliderThumbShape(
+                  thumbRadius: 32.0,
+                ),
+              ),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.height - 32,
+                child: Slider(
+                  activeColor: Colors.orange,
+                  inactiveColor: Colors.orange,
+                  thumbColor: Colors.blue,
+                  value: sliderValue,
+                  min: -50.0,
+                  max: 50.0,
+                  divisions: 100,
+                  onChanged: onSliderChanged,
+                  onChangeEnd: onSliderChangeEnd,
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-          ],
-        ),
-        SizedBox(width: 20),
-        RotatedBox(
-          quarterTurns: 3, // Rotate the slider vertically
-          child: Slider(
-            activeColor: Colors.red,
-            secondaryActiveColor: Colors.black.withOpacity(0.5),
-            thumbColor: Colors.blue.withOpacity(0.5),
-            inactiveColor: Colors.red,
-            overlayColor:
-                MaterialStateProperty.all(Colors.red.withOpacity(0.5)),
-            value: sliderValue,
-            min: -50.0,
-            max: 50.0,
-            divisions: 100,
-            onChanged: onSliderChanged,
-            onChangeEnd: onSliderChangeEnd,
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+}
+
+class SquareSliderThumbShape extends SliderComponentShape {
+  final double thumbRadius;
+
+  const SquareSliderThumbShape({
+    required this.thumbRadius,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Canvas canvas = context.canvas;
+    final Paint paint = Paint()
+      ..color = sliderTheme.thumbColor!
+      ..style = PaintingStyle.fill;
+
+    final double radius = thumbRadius;
+
+    final RRect thumbRect = RRect.fromRectAndRadius(
+      Rect.fromCircle(center: center, radius: radius),
+      Radius.circular(8.0),
+    );
+
+    canvas.drawRRect(thumbRect, paint);
   }
 }

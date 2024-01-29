@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
@@ -206,14 +207,25 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
+
     DrivingData drivingData = Provider.of<DrivingData>(context);
-    print('Received new speed: $speed');
+    // print('Received new speed: $speed');
 
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
         body: Stack(
           children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF092735), Color(0xFF0F111A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
             if (!_isReady)
               Center(
                 child: Text(
@@ -222,13 +234,16 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Positioned(
-                  top: 20,
-                  left: 60,
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20),
                   child: Text(
                     'Room Name: ${DrivingData.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
-                  )),
+                  ),
+                ),
+              ),
             if (ReadyToStartPage.isChecked)
               Positioned(
                 top: 16,
@@ -250,14 +265,14 @@ class _DrivingState extends State<Driving> {
                       child: Container(
                         width: speed,
                         height: speed,
-                        color: Colors.blue,
+                        color: const Color(0xFF1d4ed8),
                       ),
                     ),
                     Center(
                       child: Text(
                         speed.toInt().toString() + ' Km/h',
                         style: const TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: 14.0,
                             fontWeight: FontWeight.bold),
                       ),
@@ -267,19 +282,30 @@ class _DrivingState extends State<Driving> {
               ),
             if (_isReady)
               if (!ReadyToStartPage.isChecked)
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: IconButton(
-                    onPressed: () {
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: InkWell(
+                    onTap: () {
                       drivingData.totalTime(stopwatchDuration);
                       disconnectFromFlutter();
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const CompletePage()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CompletePage(),
+                        ),
+                      );
                     },
-                    icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
             if (_isReady) //!äußere Begrenzung
@@ -293,7 +319,7 @@ class _DrivingState extends State<Driving> {
                           height: 175.0,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.black,
+                              color: Colors.orange,
                               width: 2.0,
                             ),
                           ),
@@ -307,7 +333,7 @@ class _DrivingState extends State<Driving> {
                           height: 75.0,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.black,
+                              color: Colors.orange,
                               width: 2.0,
                             ),
                           ),
@@ -320,7 +346,6 @@ class _DrivingState extends State<Driving> {
             if (_isReady)
               Positioned(
                 right: 16,
-                bottom: 16,
                 child: SliderWidget(
                   sliderValue: _sliderValue,
                   onSliderChanged: (value) {
@@ -359,7 +384,7 @@ class _DrivingState extends State<Driving> {
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: Colors.blue,
                     padding: const EdgeInsets.all(16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
