@@ -43,7 +43,7 @@ const g = 9.81; // Gravitation
 
 const maxSpeed = 250; // Höchstgeschwindigkeit
 const accelerationTime = 10; // Zeit in Sekunden
-const deltaTime = 0.005; // Zeitintervall
+const deltaTime = 0.01; // Zeitintervall
 const brakeFriction = 0.9; //Bremskoeffizient
 
 io.on("connection", (socket) => {
@@ -92,28 +92,28 @@ io.on("connection", (socket) => {
         const rollingResistanceForce = mu * m * g; //Rollwiderstand = Rollwiderstandskoeffizient * Masse * Gravitation
 
         const reductionFactor = -rollingResistanceForce / m; // Geschwindigkeitsreduktion = -Rollwiderstand / Masse
-        data.speed += reductionFactor / 100;
+        data.speed += reductionFactor;
 
         if (data.speed < 0) data.speed = 0;
 
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 200);
+  }, 100);
 
   // let time = 0;
   const timeElapsed = setInterval(() => {
     roomMapper.forEach((data, roomName) => {
-      data.time += 0.25;
+      data.time += 0.1;
     });
-  }, 100);
+  }, 1);
 
   let isSinusEnabled = true;
 
   const sinusInterval = setInterval(() => {
     roomMapper.forEach((data, currentRoom) => {
       if (currentRoom && isSinusEnabled && data.speed >= 1) {
-        const sinus = Math.sin(((0.625 * Math.PI * data.time) / 60) * 0.5);
+        const sinus = Math.sin(((0.625 * Math.PI * data.time) / 60) * 0.15);
         data.speed += sinus;
 
         data.speed = Math.max(0, Math.min(data.speed, 250));
@@ -121,10 +121,10 @@ io.on("connection", (socket) => {
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 200);
+  }, 100);
 
   socket.on("slider change", (data) => {
-    roomMapper.get(data.roomName).sliderValue = data.sliderValue / 10;
+    roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
   });
 
   socket.on("gas button has been pressed", (data) => {
@@ -134,7 +134,7 @@ io.on("connection", (socket) => {
 
       const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
-      const deltaV = acceleration * deltaTime * data.sliderValue; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
+      const deltaV = (acceleration * deltaTime * data.sliderValue) / 100; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
 
       currentRoom.speed = currentRoom.speed + deltaV;
       if (currentRoom.speed > maxSpeed) currentRoom.speed = maxSpeed;
@@ -154,7 +154,7 @@ io.on("connection", (socket) => {
 
       const delay = currentBrakeForce / m; //Verzögerung = aktuelle Bremskraft / Masse
 
-      currentRoom.speed += delay * (currentRoom.sliderValue / 10);
+      currentRoom.speed += delay * currentRoom.sliderValue;
 
       if (currentRoom.speed < 0) currentRoom.speed = 0;
       io.to(data.roomName).emit("new number", { speed: currentRoom.speed });
@@ -166,12 +166,10 @@ io.on("connection", (socket) => {
     if (currentRoom && currentRoom.speed >= 1) {
       const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
       currentRoom.boxPosition = data.boxPosition + sinus;
-      socket
-        .to(data.roomName)
-        .emit("update boxPosition", {
-          boxPosition: currentRoom.boxPosition,
-          speed: currentRoom.speed,
-        });
+      socket.to(data.roomName).emit("update boxPosition", {
+        boxPosition: currentRoom.boxPosition,
+        speed: currentRoom.speed,
+      });
     }
   });
 
