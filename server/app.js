@@ -114,14 +114,14 @@ io.on("connection", (socket) => {
     roomMapper.forEach((data, currentRoom) => {
       if (currentRoom && isSinusEnabled && data.speed >= 1) {
         const sinus = Math.sin(((0.625 * Math.PI * data.time) / 200) * 0.5);
-        data.speed += sinus / 10;
+        data.speed += sinus / 100;
 
         data.speed = Math.max(0, Math.min(data.speed, 250));
 
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 100);
+  }, 10);
 
   socket.on("slider change", (data) => {
     roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
