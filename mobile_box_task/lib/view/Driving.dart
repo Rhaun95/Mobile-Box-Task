@@ -110,6 +110,7 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  //!Countdown
   void startCountdownForTimer(int duration) {
     _isReady = true;
     countTimerOption = duration;
@@ -119,8 +120,9 @@ class _DrivingState extends State<Driving> {
         if (countTimerOption > 0) {
           countTimerOption--;
         } else {
-          disconnectFromFlutter();
           drivinghelper.calculateDurationMean();
+
+          disconnectFromFlutter();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const CompletePage()));
           timer.cancel();
@@ -139,8 +141,6 @@ class _DrivingState extends State<Driving> {
 
   @override
   void dispose() {
-    disconnectFromFlutter();
-
     _timer.cancel();
     super.dispose();
   }

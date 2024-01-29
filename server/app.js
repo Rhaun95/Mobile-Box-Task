@@ -63,8 +63,7 @@ io.on("connection", (socket) => {
   socket.on("join room from web", async (room, cb) => {
     if (io.sockets.adapter.rooms.has(room)) {
       socket.join(room);
-      console.log("WEB JOINED");
-      console.log("All rooms: ", adapter.rooms);
+      console.log("WEB JOINED: ", room);
       cb(true);
     } else {
       console.log(`incorrect roomname`);
@@ -79,11 +78,13 @@ io.on("connection", (socket) => {
   }, 100);
 
   socket.on("gas button state", (data) => {
-    roomMapper.get(data.roomName).isGasPressed = data.isGasPressed;
+    if (data.isGasPressed)
+      roomMapper.get(data.roomName).isGasPressed = data.isGasPressed;
   });
 
   socket.on("brake button state", (data) => {
-    roomMapper.get(data.roomName).isBrakePressed = data.isBrakePressed;
+    if (data.isBrakePressed)
+      roomMapper.get(data.roomName).isBrakePressed = data.isBrakePressed;
   });
 
   const speedReductionInterval = setInterval(() => {
@@ -124,7 +125,8 @@ io.on("connection", (socket) => {
   }, 10);
 
   socket.on("slider change", (data) => {
-    roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
+    if (data.sliderValue)
+      roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
   });
 
   socket.on("gas button has been pressed", (data) => {
@@ -134,7 +136,7 @@ io.on("connection", (socket) => {
 
       const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
-      const deltaV = (acceleration * deltaTime * data.sliderValue) / 100; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
+      const deltaV = (acceleration * deltaTime * data?.sliderValue) / 100; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
 
       currentRoom.speed = currentRoom.speed + deltaV;
       if (currentRoom.speed > maxSpeed) currentRoom.speed = maxSpeed;
