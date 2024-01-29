@@ -113,8 +113,8 @@ io.on("connection", (socket) => {
   const sinusInterval = setInterval(() => {
     roomMapper.forEach((data, currentRoom) => {
       if (currentRoom && isSinusEnabled && data.speed >= 1) {
-        const sinus = Math.sin(((0.625 * Math.PI * data.time) / 60) * 0.5);
-        data.speed += sinus;
+        const sinus = Math.sin(((0.625 * Math.PI * data.time) / 200) * 0.5);
+        data.speed += sinus / 50;
 
         data.speed = Math.max(0, Math.min(data.speed, 250));
 
@@ -164,8 +164,8 @@ io.on("connection", (socket) => {
   socket.on("boxPosition", (data) => {
     const currentRoom = roomMapper.get(data.roomName);
     if (currentRoom && currentRoom.speed >= 1) {
-      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 200) * 0.5);
-      currentRoom.boxPosition = data.boxPosition + sinus / 50;
+      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
+      currentRoom.boxPosition = data.boxPosition + sinus;
       socket.to(data.roomName).emit("update boxPosition", {
         boxPosition: currentRoom.boxPosition,
         speed: currentRoom.speed,
