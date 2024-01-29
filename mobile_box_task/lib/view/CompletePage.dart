@@ -7,14 +7,15 @@ import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
-import '../provider/DrivingData.dart';
+import '../helper/DrivingHelper.dart';
 
 class CompletePage extends StatelessWidget {
   const CompletePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    DrivingData drivingData = Provider.of<DrivingData>(context);
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
+    print(drivingData.toJson());
 
     return MaterialApp(
       home: Scaffold(
@@ -33,18 +34,18 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "mistakes: ${drivingData.countGas} ",
+                    "mistakes: .....0.00s ",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
-                  if (!ReadyToStartPage.isChecked)
-                    Text(
-                      "Total Time: ${drivingData.totalElapsedTime}",
-                      style: TextStyle(fontSize: 15, color: Colors.blue),
-                    ),
                   if (ReadyToStartPage.isChecked)
                     Text(
                       "Total Time: 01:20:000",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                  if (!ReadyToStartPage.isChecked)
+                    Text(
+                      "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
                       style: TextStyle(fontSize: 15, color: Colors.blue),
                     ),
                 ],
@@ -53,12 +54,12 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "DRT pressed : ${drivingData.countDRT}",
+                    "DRT pressed : ${drivingData.ed.getCountDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "DRT mean : ${drivingData.meanDRT}",
+                    "DRT mean : ${drivingData.ed.getMeanDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),

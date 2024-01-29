@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -16,7 +16,7 @@ class SocketProvider extends ChangeNotifier {
   }
 
   void join() {
-    socket.emit("join room", DrivingData.roomName);
+    socket.emit("join room", DrivingHelper.roomName);
   }
 
   IO.Socket getSocket() {

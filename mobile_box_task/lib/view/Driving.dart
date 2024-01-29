@@ -5,8 +5,7 @@ import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/view/SliderPage.dart';
@@ -38,7 +37,7 @@ class _DrivingState extends State<Driving> {
   bool hasToClick = false;
   int count = 0;
   int countTimerOption = 0;
-  late DrivingData drivingData2;
+  late DrivingHelper drivinghelper;
 
   Timer? gasTimer;
   Timer? brakeTimer;
@@ -49,10 +48,20 @@ class _DrivingState extends State<Driving> {
   @override
   void initState() {
     super.initState();
+    drivinghelper = Provider.of<DrivingHelper>(context, listen: false);
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
-    drivingData2 = Provider.of<DrivingData>(context, listen: false);
     startCountdown(3);
     setHasToClickAfterRandomTime();
+    socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
+      // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.20:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': true,
+    });
+
+    socket.emit("join room", DrivingHelper.roomName);
+
     stopwatchDuration.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
@@ -68,7 +77,7 @@ class _DrivingState extends State<Driving> {
         }
 
         socket.emit('boxPosition', {
-          'roomName': DrivingData.roomName,
+          'roomName': DrivingHelper.roomName,
           'boxPosition': boxPosition,
           // 'time': time,
         });
@@ -118,7 +127,8 @@ class _DrivingState extends State<Driving> {
         if (countTimerOption > 0) {
           countTimerOption--;
         } else {
-          drivingData2.calculateDurationMean();
+          //drivinghelper.totalTime(stopwatchDuration);
+          //drivinghelper.calculateDurationMean();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const CompletePage()));
           timer.cancel();
@@ -129,7 +139,7 @@ class _DrivingState extends State<Driving> {
 
   void disconnectFromFlutter() {
     // send the leave event to server
-    socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
+    socket.emit('leaveRoom', {'roomName': DrivingHelper.roomName});
     speed = 0;
     // client disconnect
     socket.emit('disconnect');
@@ -164,18 +174,18 @@ class _DrivingState extends State<Driving> {
   void decreaseSpeed() {
     setState(() {
       socket.emit("brake button state",
-          {'roomName': DrivingData.roomName, 'isBrakePressed': true});
+          {'roomName': DrivingHelper.roomName, 'isBrakePressed': true});
       socket.emit("brake button pressed",
-          {'roomName': DrivingData.roomName, 'speed': speed});
+          {'roomName': DrivingHelper.roomName, 'speed': speed});
     });
   }
 
   void increaseSpeed() {
     setState(() {
       socket.emit("gas button state",
-          {'roomName': DrivingData.roomName, 'isGasPressed': true});
+          {'roomName': DrivingHelper.roomName, 'isGasPressed': true});
       socket.emit("gas button has been pressed", {
-        'roomName': DrivingData.roomName,
+        'roomName': DrivingHelper.roomName,
         'speed': speed,
         'sliderValue': _sliderValue
       });
@@ -203,7 +213,7 @@ class _DrivingState extends State<Driving> {
   void updateSliderState() {
     setState(() {
       socket.emit("slider change",
-          {'roomName': DrivingData.roomName, 'sliderValue': _sliderValue});
+          {'roomName': DrivingHelper.roomName, 'sliderValue': _sliderValue});
     });
   }
 
@@ -211,16 +221,14 @@ class _DrivingState extends State<Driving> {
     gasTimer!.cancel();
     brakeTimer!.cancel();
     socket.emit("gas button state",
-        {'roomName': DrivingData.roomName, 'isGasPressed': false});
+        {'roomName': DrivingHelper.roomName, 'isGasPressed': false});
     socket.emit("brake button state",
-        {'roomName': DrivingData.roomName, 'isBrakePressed': false});
+        {'roomName': DrivingHelper.roomName, 'isBrakePressed': false});
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
-
-    DrivingData drivingData = Provider.of<DrivingData>(context);
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -249,7 +257,7 @@ class _DrivingState extends State<Driving> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: Text(
-                    'Room Name: ${DrivingData.roomName}',
+                    'Room Name: ${DrivingHelper.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                 ),

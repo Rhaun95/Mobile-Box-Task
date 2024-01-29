@@ -3,11 +3,11 @@ import 'package:mobile_box_task/provider/SocketProvider.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:provider/provider.dart';
 
-import 'provider/DrivingData.dart';
+import 'helper/DrivingHelper.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => DrivingData()),
+    ChangeNotifierProvider(create: (_) => DrivingHelper()),
     ChangeNotifierProvider(create: (_) => SocketProvider()),
   ], child: const MBTApp()));
 }
@@ -18,7 +18,7 @@ class MBTApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DrivingData(),
+      create: (context) => DrivingHelper(),
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'DaytonaPro'),
         home: Scaffold(
