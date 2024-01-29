@@ -54,12 +54,12 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "DRT pressed : ${drivingData.ed.countDRT}",
+                    "DRT pressed : ${drivingData.ed.getCountDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "DRT mean : ${drivingData.ed.meanDRT}",
+                    "DRT mean : ${drivingData.ed.getMeanDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),

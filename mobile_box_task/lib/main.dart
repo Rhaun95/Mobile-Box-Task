@@ -8,6 +8,7 @@ import 'helper/DrivingHelper.dart';
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DrivingHelper()),
+    ChangeNotifierProvider(create: (_) => SocketProvider()),
   ], child: const MBTApp()));
 }
 

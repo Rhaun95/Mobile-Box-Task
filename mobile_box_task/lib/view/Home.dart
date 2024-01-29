@@ -40,25 +40,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
     DrivingHelper.roomName = drivingData.generateRandomString();
-    // print('YOUR ROOM: ${DrivingData.roomName}');
-//
-    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Center(
-        child: SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Button(
-                  onPressed: () {
-                    SystemChrome.setPreferredOrientations([
-                      DeviceOrientation.portraitUp,
-                      DeviceOrientation.portraitDown,
-                    ]);
-                    Navigator.push(
-    DrivingData drivingData = Provider.of<DrivingData>(context);
-    DrivingData.roomName = drivingData.generateRandomString();
-    print('YOUR ROOM: ${DrivingData.roomName}');
+    print('YOUR ROOM: ${DrivingHelper.roomName}');
     SocketProvider socketProvider = Provider.of<SocketProvider>(context);
     socketProvider.join();
 

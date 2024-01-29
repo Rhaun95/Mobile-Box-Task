@@ -1,8 +1,8 @@
 class EvaluationData {
   int countDRT = 0;
-  late String totalElapsedTime;
+  String totalElapsedTime = "";
   List<int> drtTimes = [];
-  late String meanDRT;
+  String meanDRT = "";
 
   int getCountDRT() {
     return countDRT;

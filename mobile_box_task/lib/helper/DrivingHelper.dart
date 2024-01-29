@@ -22,17 +22,6 @@ class DrivingHelper extends ChangeNotifier {
     return randomString;
   }
 
-  // brakeButtonPressed() {
-  //   countBrake += 1;
-  //   print("brake button pressed: ${countBrake}");
-  //   // notifyListeners();
-  // }
-
-  // void gasButtonPressed() {
-  //   countGas += 1;
-  //   print("gas button pressed: ${countGas}");
-  // }
-
   void drtButtonPressed(Stopwatch stopwatch) {
     stopwatch.stop();
     ed.getDrtTimes().add(stopwatch.elapsedMilliseconds);
@@ -42,15 +31,17 @@ class DrivingHelper extends ChangeNotifier {
   }
 
 // calculate mean of milliSeconds(int) in form 0.00s(String)
-  String calculateDurationMean(List<int> list) {
-    if (list.isNotEmpty) {
+  void calculateDurationMean() {
+    if (ed.getDrtTimes().isNotEmpty) {
       double meanDuration =
-          list.reduce((value, element) => value + element) / list.length;
+          ed.getDrtTimes().reduce((value, element) => value + element) /
+              ed.getDrtTimes().length;
 
       String res = "${(meanDuration / 1000).toStringAsFixed(2)}s";
-      return res;
+      ed.setMeanDRT(res);
+    } else {
+      ed.setMeanDRT("0s");
     }
-    return "0s";
   }
 
 // calculate
@@ -68,7 +59,6 @@ class DrivingHelper extends ChangeNotifier {
     stopwatch.stop();
     print('Duration: ${stopwatch.elapsed}');
     ed.setTotalElapsedTime(formatDuration(stopwatch.elapsed));
-    ed.setMeanDRT(calculateDurationMean(ed.getDrtTimes()));
   }
 
   // Future<void> convertDataToJsonAndsendTojson() async {
