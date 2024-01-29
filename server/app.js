@@ -106,7 +106,7 @@ io.on("connection", (socket) => {
     roomMapper.forEach((data, roomName) => {
       data.time += 0.05;
     });
-  }, 1);
+  }, 10);
 
   let isSinusEnabled = true;
 
@@ -121,7 +121,7 @@ io.on("connection", (socket) => {
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 100);
+  }, 1000);
 
   socket.on("slider change", (data) => {
     roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
