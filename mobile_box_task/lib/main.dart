@@ -18,11 +18,8 @@ class MBTApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => DrivingData(),
       child: MaterialApp(
+        theme: ThemeData(fontFamily: 'DaytonaPro'),
         home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blue,
-            title: const Center(child: Text('Startseite Moblie Box Task')),
-          ),
           body: const Home(),
         ),
       ),
