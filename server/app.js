@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 1);
+  }, 50);
 
   // let time = 0;
   const timeElapsed = setInterval(() => {
@@ -164,8 +164,8 @@ io.on("connection", (socket) => {
   socket.on("boxPosition", (data) => {
     const currentRoom = roomMapper.get(data.roomName);
     if (currentRoom && currentRoom.speed >= 1) {
-      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 200) * 0.5);
-      currentRoom.boxPosition = data.boxPosition + sinus / 50;
+      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
+      currentRoom.boxPosition = data.boxPosition + sinus;
       socket.to(data.roomName).emit("update boxPosition", {
         boxPosition: currentRoom.boxPosition,
         speed: currentRoom.speed,
