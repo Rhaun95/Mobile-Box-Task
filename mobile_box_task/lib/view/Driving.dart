@@ -5,8 +5,7 @@ import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/view/SliderPage.dart';
@@ -29,7 +28,7 @@ class _DrivingState extends State<Driving> {
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
-  bool _isReady = true;
+  bool _isReady = false;
   late Timer _timer;
   late IO.Socket socket;
   double speed = 0.0;
@@ -37,6 +36,8 @@ class _DrivingState extends State<Driving> {
   bool isBrakePressed = false;
   bool hasToClick = false;
   int count = 0;
+  int countTimerOption = 0;
+  late DrivingHelper drivinghelper;
 
   Timer? gasTimer;
   Timer? brakeTimer;
@@ -47,10 +48,20 @@ class _DrivingState extends State<Driving> {
   @override
   void initState() {
     super.initState();
+    drivinghelper = Provider.of<DrivingHelper>(context, listen: false);
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
-
-    // startCountdown(3);
+    startCountdown(3);
     setHasToClickAfterRandomTime();
+    socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
+      // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.20:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': true,
+    });
+
+    socket.emit("join room", DrivingHelper.roomName);
+
     stopwatchDuration.start();
 
     accelerometerEvents.listen((AccelerometerEvent event) {
@@ -66,7 +77,7 @@ class _DrivingState extends State<Driving> {
         }
 
         socket.emit('boxPosition', {
-          'roomName': DrivingData.roomName,
+          'roomName': DrivingHelper.roomName,
           'boxPosition': boxPosition,
           // 'time': time,
         });
@@ -91,34 +102,44 @@ class _DrivingState extends State<Driving> {
     // });
   }
 
-  // void startCountdown(int duration) {
-  //   count = duration;
-  //   const oneSecond = Duration(seconds: 1);
-  //   _timer = Timer.periodic(oneSecond, (timer) {
-  //     setState(() {
-  //       if (count > 0) {
-  //         count--;
-  //       } else {
-  //         if (ReadyToStartPage.isChecked) {
-  //           if (_isReady) {
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                     builder: (context) => const CompletePage()));
-  //           } else {
-  //             startCountdown(4);
-  //           }
-  //         }
-  //         timer.cancel();
-  //         _isReady = true;
-  //       }
-  //     });
-  //   });
-  // }
+  void startCountdown(int duration) {
+    count = duration;
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (timer) {
+      setState(() {
+        if (count > 0) {
+          count--;
+        } else {
+          timer.cancel();
+          _isReady = true;
+          if (ReadyToStartPage.isChecked) startCountdownForTimer(4);
+        }
+      });
+    });
+  }
+
+  void startCountdownForTimer(int duration) {
+    _isReady = true;
+    countTimerOption = duration;
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (timer) {
+      setState(() {
+        if (countTimerOption > 0) {
+          countTimerOption--;
+        } else {
+          //drivinghelper.totalTime(stopwatchDuration);
+          //drivinghelper.calculateDurationMean();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const CompletePage()));
+          timer.cancel();
+        }
+      });
+    });
+  }
 
   void disconnectFromFlutter() {
     // send the leave event to server
-    socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
+    socket.emit('leaveRoom', {'roomName': DrivingHelper.roomName});
     speed = 0;
     // client disconnect
     socket.emit('disconnect');
@@ -153,18 +174,18 @@ class _DrivingState extends State<Driving> {
   void decreaseSpeed() {
     setState(() {
       socket.emit("brake button state",
-          {'roomName': DrivingData.roomName, 'isBrakePressed': true});
+          {'roomName': DrivingHelper.roomName, 'isBrakePressed': true});
       socket.emit("brake button pressed",
-          {'roomName': DrivingData.roomName, 'speed': speed});
+          {'roomName': DrivingHelper.roomName, 'speed': speed});
     });
   }
 
   void increaseSpeed() {
     setState(() {
       socket.emit("gas button state",
-          {'roomName': DrivingData.roomName, 'isGasPressed': true});
+          {'roomName': DrivingHelper.roomName, 'isGasPressed': true});
       socket.emit("gas button has been pressed", {
-        'roomName': DrivingData.roomName,
+        'roomName': DrivingHelper.roomName,
         'speed': speed,
         'sliderValue': _sliderValue
       });
@@ -192,7 +213,7 @@ class _DrivingState extends State<Driving> {
   void updateSliderState() {
     setState(() {
       socket.emit("slider change",
-          {'roomName': DrivingData.roomName, 'sliderValue': _sliderValue});
+          {'roomName': DrivingHelper.roomName, 'sliderValue': _sliderValue});
     });
   }
 
@@ -200,17 +221,14 @@ class _DrivingState extends State<Driving> {
     gasTimer!.cancel();
     brakeTimer!.cancel();
     socket.emit("gas button state",
-        {'roomName': DrivingData.roomName, 'isGasPressed': false});
+        {'roomName': DrivingHelper.roomName, 'isGasPressed': false});
     socket.emit("brake button state",
-        {'roomName': DrivingData.roomName, 'isBrakePressed': false});
+        {'roomName': DrivingHelper.roomName, 'isBrakePressed': false});
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
-
-    DrivingData drivingData = Provider.of<DrivingData>(context);
-    // print('Received new speed: $speed');
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -239,17 +257,17 @@ class _DrivingState extends State<Driving> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: Text(
-                    'Room Name: ${DrivingData.roomName}',
+                    'Room Name: ${DrivingHelper.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                 ),
               ),
-            if (ReadyToStartPage.isChecked)
+            if (ReadyToStartPage.isChecked && _isReady)
               Positioned(
-                top: 16,
+                top: 36,
                 left: MediaQuery.of(context).size.width * 0.49,
                 child: Text(
-                  '$count',
+                  '$countTimerOption',
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
@@ -280,34 +298,34 @@ class _DrivingState extends State<Driving> {
                   ],
                 ),
               ),
-            if (_isReady)
-              if (!ReadyToStartPage.isChecked)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: InkWell(
-                    onTap: () {
-                      drivingData.totalTime(stopwatchDuration);
-                      disconnectFromFlutter();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CompletePage(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(8),
+            if (_isReady && !ReadyToStartPage.isChecked)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  onTap: () {
+                    drivingData.totalTime(stopwatchDuration);
+                    drivingData.calculateDurationMean();
+                    disconnectFromFlutter();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CompletePage(),
                       ),
-                      padding: const EdgeInsets.all(8),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
                     ),
                   ),
                 ),
+              ),
             if (_isReady) //!äußere Begrenzung
               Positioned(
                 child: Center(
