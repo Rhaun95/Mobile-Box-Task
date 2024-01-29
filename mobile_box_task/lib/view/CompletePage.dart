@@ -6,14 +6,16 @@ import 'package:mobile_box_task/main.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
-import '../provider/DrivingData.dart';
+import '../MO/DrivingHelper.dart';
 
 class CompletePage extends StatelessWidget {
   const CompletePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    DrivingData drivingData = Provider.of<DrivingData>(context);
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
+    drivingData.convertDataToJsonAndsendTojson();
+   
 
     return MaterialApp(
       home: Scaffold(
@@ -32,31 +34,17 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Gas pressed: ${drivingData.countGas} ",
+                    "DRT pressed : ${drivingData.ed.getCountDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "Brake pressed : ${drivingData.countBrake}",
-                    style: TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "DRT pressed : ${drivingData.countDRT}",
+                    "DRT mean : ${drivingData.ed.getMeanDRT()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "DRT mean : ${drivingData.meanDRT}",
-                    style: TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    "Total Time: ${drivingData.totalElapsedTime}",
+                    "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                 ],

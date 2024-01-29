@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/MO/DrivingHelper.dart';
 import 'package:mobile_box_task/view/Driving.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
@@ -20,7 +20,7 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
     // DrivingData drivingData = Provider.of<DrivingData>(context);
     // DrivingData.roomName = drivingData.generateRandomString();
 
-    print('YOUR ROOM: ${DrivingData.roomName}');
+    print('YOUR ROOM: ${DrivingHelper.roomName}');
 
     return MaterialApp(
       home: Scaffold(
@@ -75,7 +75,7 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
                   Align(
                     alignment: Alignment.topCenter,
                     child: Text(
-                      '${DrivingData.roomName}',
+                      '${DrivingHelper.roomName}',
                       style: TextStyle(fontSize: 40, color: Colors.blue),
                     ),
                   ),

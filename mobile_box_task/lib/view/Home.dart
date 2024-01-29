@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/MO/DrivingHelper.dart';
 import 'package:mobile_box_task/view/InstructionPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
@@ -12,8 +12,8 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DrivingData drivingData = Provider.of<DrivingData>(context);
-    DrivingData.roomName = drivingData.generateRandomString();
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
+    DrivingHelper.roomName = drivingData.generateRandomString();
     // print('YOUR ROOM: ${DrivingData.roomName}');
 //
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [

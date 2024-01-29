@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/MO/DrivingHelper.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/view/SliderPage.dart';
@@ -47,15 +47,15 @@ class _DrivingState extends State<Driving> {
     super.initState();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://box-task.imis.uni-luebeck.de', <String, dynamic>{
+    socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
       // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.1.15:3001', <String, dynamic>{
+      // socket = IO.io('http://192.168.178.20:3001', <String, dynamic>{
       // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
 
-    socket.emit("join room", DrivingData.roomName);
+    socket.emit("join room", DrivingHelper.roomName);
 
     stopwatchDuration.start();
 
@@ -123,7 +123,7 @@ class _DrivingState extends State<Driving> {
 
   void disconnectFromFlutter() {
     // send the leave event to server
-    socket.emit('leaveRoom', {'roomName': DrivingData.roomName});
+    socket.emit('leaveRoom', {'roomName': DrivingHelper.roomName});
 
     // client disconnect
     socket.emit('disconnect');
@@ -206,7 +206,7 @@ class _DrivingState extends State<Driving> {
 
   @override
   Widget build(BuildContext context) {
-    DrivingData drivingData = Provider.of<DrivingData>(context);
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -225,7 +225,7 @@ class _DrivingState extends State<Driving> {
                   top: 20,
                   left: 60,
                   child: Text(
-                    'Room Name: ${DrivingData.roomName}',
+                    'Room Name: ${DrivingHelper.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
                   )),
             if (ReadyToStartPage.isChecked)
