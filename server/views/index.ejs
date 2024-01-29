@@ -116,31 +116,28 @@
 
   }
 
-  socket.on("new number", function (currentSpeed) {
-    speed = Math.min(Math.max(currentSpeed, 0), 250);
+  socket.on("new number", (data) => {
+    speed = Math.min(Math.max(data.speed, 0), 250);
+
     sum.textContent = Math.floor(speed) + " Km/h";
     var boxSize = speed;
     updateBoxSize(boxSize);
+
   });
 
-  socket.on("update boxPosition", (position) => {
+  socket.on("update boxPosition", (data) => {
+
     let screenWidth = window.innerWidth;
-    var newBoxPosition = screenWidth * 0.5 - speed * 1.6 + position * 145;
+    var newBoxPosition = screenWidth * 0.5 - data.speed * 1.6 + data.boxPosition * 145;
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
 
   socket.on("leaveRoomFromServer", () => {
-    // socket.leave(showRoom.textContent);
     socket.disconnect();
-
-    // socket.emit('leaveRoomFromWeb', showRoom.textContent);
+    location.reload();
 
   })
-
-  setInterval(() => {
-    socket.to(showRoom.textContent).emit("new number", speed);
-  }, 100);
 
   // function increaseSpeed() {
   //   if (speed <= 250) {
