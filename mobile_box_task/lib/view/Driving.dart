@@ -1,10 +1,12 @@
 // ignore_for_file: library_prefixes, library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/helper/DrivingHelper.dart';
+import 'package:mobile_box_task/provider/DrivingData.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/view/SliderPage.dart';
@@ -12,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
+
+import '../provider/SocketProvider.dart';
 
 class Driving extends StatefulWidget {
   const Driving({super.key});
@@ -28,11 +32,13 @@ class _DrivingState extends State<Driving> {
   bool _isReady = false;
   late Timer _timer;
   late IO.Socket socket;
-  double speed = 0;
+  double speed = 0.0;
   bool isGasPressed = false;
   bool isBrakePressed = false;
   bool hasToClick = false;
   int count = 0;
+  int countTimerOption = 0;
+  late DrivingData drivingData2;
 
   Timer? gasTimer;
   Timer? brakeTimer;
@@ -40,11 +46,11 @@ class _DrivingState extends State<Driving> {
   Stopwatch stopwatchDuration = Stopwatch();
   Stopwatch stopwatchDRT = Stopwatch();
 
-  // late String roomName;
-
   @override
   void initState() {
     super.initState();
+    socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
+    drivingData2 = Provider.of<DrivingData>(context, listen: false);
     startCountdown(3);
     setHasToClickAfterRandomTime();
     socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
@@ -71,12 +77,21 @@ class _DrivingState extends State<Driving> {
           boxPosition = 0;
         }
 
-        socket.emit('boxPosition', boxPosition);
+        socket.emit('boxPosition', {
+          'roomName': DrivingData.roomName,
+          'boxPosition': boxPosition,
+          // 'time': time,
+        });
       });
     });
 
     socket.onConnect((_) {
       print('Connected to server');
+    });
+    socket.on('new number', (receivedSpeed) {
+      setState(() {
+        speed = receivedSpeed["speed"];
+      });
     });
 
     // socket.onDisconnect((_) {
@@ -86,14 +101,6 @@ class _DrivingState extends State<Driving> {
     //     socket.on('disconnect', (_) {
     //   print('Disconnected from server');
     // });
-
-    socket.on('new number', (receivedSpeed) {
-      setState(() {
-        speed = receivedSpeed.toDouble();
-      });
-    });
-
-    socket.connect();
   }
 
   void startCountdown(int duration) {
@@ -104,18 +111,27 @@ class _DrivingState extends State<Driving> {
         if (count > 0) {
           count--;
         } else {
-          if (ReadyToStartPage.isChecked) {
-            if (_isReady) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CompletePage()));
-            } else {
-              startCountdown(4);
-            }
-          }
           timer.cancel();
           _isReady = true;
+          if (ReadyToStartPage.isChecked) startCountdownForTimer(4);
+        }
+      });
+    });
+  }
+
+  void startCountdownForTimer(int duration) {
+    _isReady = true;
+    countTimerOption = duration;
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (timer) {
+      setState(() {
+        if (countTimerOption > 0) {
+          countTimerOption--;
+        } else {
+          drivingData2.calculateDurationMean();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const CompletePage()));
+          timer.cancel();
         }
       });
     });
@@ -124,16 +140,14 @@ class _DrivingState extends State<Driving> {
   void disconnectFromFlutter() {
     // send the leave event to server
     socket.emit('leaveRoom', {'roomName': DrivingHelper.roomName});
-
+    speed = 0;
     // client disconnect
     socket.emit('disconnect');
-    // socket.disconnect();
   }
 
   @override
   void dispose() {
     disconnectFromFlutter();
-    socket.disconnect();
 
     _timer.cancel();
     super.dispose();
@@ -159,15 +173,22 @@ class _DrivingState extends State<Driving> {
 
   void decreaseSpeed() {
     setState(() {
-      socket.emit("brake button pressed", speed);
-      socket.emit("brake button state", true);
+      socket.emit("brake button state",
+          {'roomName': DrivingData.roomName, 'isBrakePressed': true});
+      socket.emit("brake button pressed",
+          {'roomName': DrivingData.roomName, 'speed': speed});
     });
   }
 
   void increaseSpeed() {
     setState(() {
-      socket.emit("gas button has been pressed", speed);
-      socket.emit("gas button state", true);
+      socket.emit("gas button state",
+          {'roomName': DrivingData.roomName, 'isGasPressed': true});
+      socket.emit("gas button has been pressed", {
+        'roomName': DrivingData.roomName,
+        'speed': speed,
+        'sliderValue': _sliderValue
+      });
     });
   }
 
@@ -180,8 +201,6 @@ class _DrivingState extends State<Driving> {
     });
   }
 
-  // void increaseSpeed() {}
-
   void brakePressed() {
     setState(() {
       brakeTimer?.cancel();
@@ -193,15 +212,18 @@ class _DrivingState extends State<Driving> {
 
   void updateSliderState() {
     setState(() {
-      socket.emit("slider change", _sliderValue);
+      socket.emit("slider change",
+          {'roomName': DrivingData.roomName, 'sliderValue': _sliderValue});
     });
   }
 
   void noInput() {
     gasTimer!.cancel();
     brakeTimer!.cancel();
-    socket.emit("gas button state", false);
-    socket.emit("brake button state", false);
+    socket.emit("gas button state",
+        {'roomName': DrivingData.roomName, 'isGasPressed': false});
+    socket.emit("brake button state",
+        {'roomName': DrivingData.roomName, 'isBrakePressed': false});
   }
 
   @override
@@ -213,6 +235,15 @@ class _DrivingState extends State<Driving> {
       child: Scaffold(
         body: Stack(
           children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF092735), Color(0xFF0F111A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
             if (!_isReady)
               Center(
                 child: Text(
@@ -221,23 +252,26 @@ class _DrivingState extends State<Driving> {
                 ),
               ),
             if (_isReady)
-              Positioned(
-                  top: 20,
-                  left: 60,
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20),
                   child: Text(
                     'Room Name: ${DrivingHelper.roomName}',
                     style: const TextStyle(fontSize: 20, color: Colors.blue),
-                  )),
-            if (ReadyToStartPage.isChecked)
+                  ),
+                ),
+              ),
+            if (ReadyToStartPage.isChecked && _isReady)
               Positioned(
-                top: 16,
+                top: 36,
                 left: MediaQuery.of(context).size.width * 0.49,
                 child: Text(
-                  '$count',
+                  '$countTimerOption',
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
-            if (_isReady)
+            if (_isReady) //! Box
               Center(
                 child: Stack(
                   alignment: Alignment.center,
@@ -247,41 +281,52 @@ class _DrivingState extends State<Driving> {
                           speed / 2 +
                           boxPosition * 50,
                       child: Container(
-                        width: min(speed, 0.0),
-                        height: min(speed, 0.0),
-                        color: Colors.blue,
-                        child: Center(
-                          child: Text(
-                            speed.toInt().toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
+                        width: speed,
+                        height: speed,
+                        color: const Color(0xFF1d4ed8),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        speed.toInt().toString() + ' Km/h',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
                 ),
               ),
-            if (_isReady)
-              if (!ReadyToStartPage.isChecked)
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: IconButton(
-                    onPressed: () {
-                      drivingData.totalTime(stopwatchDuration);
-                      disconnectFromFlutter();
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const CompletePage()));
-                    },
-                    icon: const Icon(Icons.cancel_outlined, color: Colors.blue),
+            if (_isReady && !ReadyToStartPage.isChecked)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  onTap: () {
+                    drivingData.totalTime(stopwatchDuration);
+                    drivingData.calculateDurationMean();
+                    disconnectFromFlutter();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CompletePage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-            if (_isReady)
+              ),
+            if (_isReady) //!äußere Begrenzung
               Positioned(
                 child: Center(
                   child: Stack(
@@ -292,12 +337,12 @@ class _DrivingState extends State<Driving> {
                           height: 175.0,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.black,
+                              color: Colors.orange,
                               width: 2.0,
                             ),
                           ),
                         ),
-                      ),
+                      ), //!innere Begrenzung
                       Positioned(
                         left: 50,
                         top: 50,
@@ -306,7 +351,7 @@ class _DrivingState extends State<Driving> {
                           height: 75.0,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.black,
+                              color: Colors.orange,
                               width: 2.0,
                             ),
                           ),
@@ -319,7 +364,6 @@ class _DrivingState extends State<Driving> {
             if (_isReady)
               Positioned(
                 right: 16,
-                bottom: 16,
                 child: SliderWidget(
                   sliderValue: _sliderValue,
                   onSliderChanged: (value) {
@@ -358,7 +402,7 @@ class _DrivingState extends State<Driving> {
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: Colors.blue,
                     padding: const EdgeInsets.all(16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),

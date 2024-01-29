@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_box_task/provider/SocketProvider.dart';
 import 'package:mobile_box_task/view/Home.dart';
 import 'package:provider/provider.dart';
 
@@ -18,11 +19,8 @@ class MBTApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => DrivingHelper(),
       child: MaterialApp(
+        theme: ThemeData(fontFamily: 'DaytonaPro'),
         home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blue,
-            title: const Center(child: Text('Startseite Moblie Box Task')),
-          ),
           body: const Home(),
         ),
       ),

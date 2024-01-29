@@ -104,27 +104,6 @@
     pressed = true;
   }
 
-  function increaseSpeed() {
-    if (speed <= 250) {
-      speed += accelerationFactor;
-      if (speed > 250) speed = 250; // Begrenzen Sie die Geschwindigkeit auf 250
-      socket.emit("gas button has been pressed", speed);
-      accelerationFactor *= 0.95;
-      if (accelerationFactor < 1) accelerationFactor = 1;
-    }
-  }
-
-  function decreaseSpeed() {
-    if (speed > 0) {
-      // Überprüfen Sie, ob die Geschwindigkeit größer als 0 ist
-      speed -= accelerationFactor;
-      if (speed < 0) speed = 0;
-      socket.emit("brake button pressed", speed);
-      accelerationFactor *= 0.95;
-      if (accelerationFactor < 1) accelerationFactor = 1;
-    }
-  }
-
   function updateBoxSize(size) {
     // Nur aktualisieren, wenn die Geschwindigkeit kleiner oder gleich 250 ist
     if (speed <= 250) {
@@ -136,48 +115,69 @@
     drivingBox.style.left = position + "px";
 
   }
-  gas.addEventListener("mousedown", function () {
-    intervalId = setInterval(increaseSpeed, 1); // Beschleunige alle 50 Millisekunden
-  });
 
-  gas.addEventListener("mouseup", function () {
-    clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
-    accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
-  });
+  socket.on("new number", (data) => {
+    speed = Math.min(Math.max(data.speed, 0), 250);
 
-  brake.addEventListener("mousedown", function () {
-    intervalId = setInterval(decreaseSpeed, 1); // Verlangsame alle 50 Millisekunden
-  });
-
-  brake.addEventListener("mouseup", function () {
-    clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
-    accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
-  });
-
-  socket.on("new number", function (currentSpeed) {
-    speed = Math.min(Math.max(currentSpeed, 0), 250);
     sum.textContent = Math.floor(speed) + " Km/h";
     var boxSize = speed;
     updateBoxSize(boxSize);
+
   });
 
-  socket.on("update boxPosition", (position) => {
+  socket.on("update boxPosition", (data) => {
+
     let screenWidth = window.innerWidth;
-    var newBoxPosition = screenWidth * 0.5 - speed * 1.6 + position * 145;
+    var newBoxPosition = screenWidth * 0.5 - data.speed * 1.5 + data.boxPosition * 133;
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
 
   socket.on("leaveRoomFromServer", () => {
-    // socket.leave(showRoom.textContent);
     socket.disconnect();
-
-    // socket.emit('leaveRoomFromWeb', showRoom.textContent);
+    location.reload();
 
   })
 
+  // function increaseSpeed() {
+  //   if (speed <= 250) {
+  //     speed += accelerationFactor;
+  //     if (speed > 250) speed = 250; // Begrenzen Sie die Geschwindigkeit auf 250
+  //     socket.emit("gas button has been pressed", speed);
+  //     accelerationFactor *= 0.95;
+  //     if (accelerationFactor < 1) accelerationFactor = 1;
+  //   }
+  // }
+
+  // function decreaseSpeed() {
+  //   if (speed > 0) {
+  //     // Überprüfen Sie, ob die Geschwindigkeit größer als 0 ist
+  //     speed -= accelerationFactor;
+  //     if (speed < 0) speed = 0;
+  //     socket.emit("brake button pressed", speed);
+  //     accelerationFactor *= 0.95;
+  //     if (accelerationFactor < 1) accelerationFactor = 1;
+  //   }
+  // }
 
 
+  // gas.addEventListener("mousedown", function () {
+  //   intervalId = setInterval(increaseSpeed, 1); // Beschleunige alle 50 Millisekunden
+  // });
+
+  // gas.addEventListener("mouseup", function () {
+  //   clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
+  //   accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
+  // });
+
+  // brake.addEventListener("mousedown", function () {
+  //   intervalId = setInterval(decreaseSpeed, 1); // Verlangsame alle 50 Millisekunden
+  // });
+
+  // brake.addEventListener("mouseup", function () {
+  //   clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
+  //   accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
+  // });
 
 
 </script>

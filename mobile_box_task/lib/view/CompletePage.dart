@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/main.dart';
+import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
@@ -33,19 +34,35 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "DRT pressed : ${drivingData.ed.getCountDRT()}",
+                    "mistakes: .....0.00s ",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  if (ReadyToStartPage.isChecked)
+                    Text(
+                      "Total Time: 01:20:000",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                  if (!ReadyToStartPage.isChecked)
+                    Text(
+                      "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "DRT pressed : ${drivingData.ed.countDRT}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "DRT mean : ${drivingData.ed.getMeanDRT()}",
+                    "DRT mean : ${drivingData.ed.meanDRT}",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
-                    style: TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),

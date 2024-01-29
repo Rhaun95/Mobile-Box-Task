@@ -34,168 +34,159 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-var speed = 0;
-var sliderValue = 0;
-let isGasPressed = false;
-let isBrakePressed = false;
-
+let roomMapper = new Map();
 const adapter = io.sockets.adapter;
 
-var roomName = [];
+const mu = 0.015; // Rollwiderstandskoeffizient
+const m = 1500; // Masse des Autos in kg
+const g = 9.81; // Gravitation
+
+const maxSpeed = 250; // Höchstgeschwindigkeit
+const accelerationTime = 10; // Zeit in Sekunden
+const deltaTime = 0.01; // Zeitintervall
+const brakeFriction = 0.9; //Bremskoeffizient
 
 io.on("connection", (socket) => {
-  console.log("client is connected", socket.id);
-
   socket.on("join room", (data) => {
-    roomName.push(data);
-    socket.join(roomName);
+    roomMapper.set(data, {
+      speed: 0,
+      sliderValue: 0,
+      isGasPressed: false,
+      isBrakePressed: false,
+      boxPosition: 0,
+      time: 0,
+    });
+    socket.join(data);
     console.log("All rooms: ", adapter.rooms);
-
   });
 
   socket.on("join room from web", async (room, cb) => {
-    if (true) {
+    if (io.sockets.adapter.rooms.has(room)) {
       socket.join(room);
-      console.log("WEB JOINED")
+      console.log("WEB JOINED");
       console.log("All rooms: ", adapter.rooms);
       cb(true);
     } else {
       console.log(`incorrect roomname`);
       cb(false);
     }
-
-  })
-
+  });
 
   setInterval(() => {
-    // socket.emit("new number", speed);
-    socket.to(roomName).emit("new number", speed);
+    roomMapper.forEach((data, currentRoom) => {
+      io.to(currentRoom).emit("new number", { speed: data.speed });
+    });
   }, 100);
 
-  socket.on("gas button state", (pressed) => {
-    // socket.join(roomId);
-    isGasPressed = pressed;
+  socket.on("gas button state", (data) => {
+    roomMapper.get(data.roomName).isGasPressed = data.isGasPressed;
   });
 
-  socket.on("brake button state", (pressedB) => {
-    // socket.join(roomId);
-    isBrakePressed = pressedB;
+  socket.on("brake button state", (data) => {
+    roomMapper.get(data.roomName).isBrakePressed = data.isBrakePressed;
   });
 
-  const mu = 0.015; // Rollwiderstandskoeffizient
-  const m = 1500; // Masse des Autos in kg
-  const g = 9.81; // Gravitation
   const speedReductionInterval = setInterval(() => {
-    if (!isGasPressed && speed > 0) {
-      const rollingResistanceForce = mu * m * g; //Rollwiderstand = Rollwiderstandskoeffizient * Masse * Gravitation
+    roomMapper.forEach((data, currentRoom) => {
+      if (currentRoom && !data.isGasPressed && data.speed > 0) {
+        const rollingResistanceForce = mu * m * g; //Rollwiderstand = Rollwiderstandskoeffizient * Masse * Gravitation
 
-      const reductionFactor = -rollingResistanceForce / m; // Geschwindigkeitsreduktion = -Rollwiderstand / Masse
-      speed += reductionFactor / 100;
+        const reductionFactor = -rollingResistanceForce / m; // Geschwindigkeitsreduktion = -Rollwiderstand / Masse
+        data.speed += reductionFactor;
 
-      if (speed < 0) speed = 0;
+        if (data.speed < 0) data.speed = 0;
 
-      //io.emit("new number", speed);
-      socket.to(roomName).emit("new number", speed);
-    }
-  }, 1);
+        io.to(currentRoom).emit("new number", { speed: data.speed });
+      }
+    });
+  }, 50);
 
-  socket.on("slider change", (_sliderValue) => {
-    sliderValue = _sliderValue / 100;
+  // let time = 0;
+  const timeElapsed = setInterval(() => {
+    roomMapper.forEach((data, roomName) => {
+      data.time += 0.05;
+    });
+  }, 10);
+
+  let isSinusEnabled = true;
+
+  const sinusInterval = setInterval(() => {
+    roomMapper.forEach((data, currentRoom) => {
+      if (currentRoom && isSinusEnabled && data.speed >= 1) {
+        const sinus = Math.sin(((0.625 * Math.PI * data.time) / 200) * 0.5);
+        data.speed += sinus / 50;
+
+        data.speed = Math.max(0, Math.min(data.speed, 250));
+
+        io.to(currentRoom).emit("new number", { speed: data.speed });
+      }
+    });
+  }, 10);
+
+  socket.on("slider change", (data) => {
+    roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
   });
 
-  socket.on("gas button has been pressed", () => {
-    if (isGasPressed && sliderValue > 0) {
-      const initialSpeed = speed; // Anfangsgeschwindigkeit
-      const maxSpeed = 250; // Höchstgeschwindigkeit
-      const accelerationTime = 10; // Zeit in Sekunden
-      const deltaTime = 0.005; // Zeitintervall
+  socket.on("gas button has been pressed", (data) => {
+    const currentRoom = roomMapper.get(data.roomName);
+    if (currentRoom.isGasPressed && currentRoom.sliderValue > 0) {
+      const initialSpeed = currentRoom.speed; // Anfangsgeschwindigkeit
 
       const acceleration = (maxSpeed - initialSpeed) / accelerationTime; //Beschleunigung = (maximale Geschwindigkeit - Anfangsgeschwindigkeit) / Beschleunigungszeit
 
-      const deltaV = acceleration * deltaTime * sliderValue; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
+      const deltaV = (acceleration * deltaTime * data.sliderValue) / 100; //Geschwindigkeitsänderung = Beschleunigung * Zeitintervall
 
-      speed = speed + deltaV;
-
-      if (speed > maxSpeed) speed = maxSpeed;
-      // io.emit("new number", speed);
-      socket.to(roomName).emit("new number", speed);
+      currentRoom.speed = currentRoom.speed + deltaV;
+      if (currentRoom.speed > maxSpeed) currentRoom.speed = maxSpeed;
+      io.to(data.roomName).emit("new number", { speed: currentRoom.speed });
     }
   });
 
-  socket.on("gas button released", () => {
-    isGasPressed = false;
-  });
+  socket.on("brake button pressed", (data) => {
+    const currentRoom = roomMapper.get(data.roomName);
 
-  socket.on("brake button pressed", () => {
-    if (isBrakePressed && sliderValue < 0) {
-      const brakeFriction = 0.9; //Bremskoeffizient
-
+    if (currentRoom.isBrakePressed && currentRoom.sliderValue < 0) {
       const brakeForce = brakeFriction * m * g; //Bremskraft = Bremskoeffizient * Masse * Gravitation
 
-      const speedFactor = speed / 250; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
+      const speedFactor = currentRoom.speed / maxSpeed; //Geschwindigkeitsfaktor = Geschwindigkeit / maximale Geschwindigkeit
 
       const currentBrakeForce = brakeForce * speedFactor; //aktuelle Bremskraft = Bremskfraft * Geschwindigkeitsfaktor
 
       const delay = currentBrakeForce / m; //Verzögerung = aktuelle Bremskraft / Masse
 
-      speed += delay * (sliderValue / 10);
+      currentRoom.speed += delay * currentRoom.sliderValue;
 
-      if (speed < 0) speed = 0;
-
-      // socket.emit("new number", speed);
-      socket.to(roomName).emit("new number", speed);
+      if (currentRoom.speed < 0) currentRoom.speed = 0;
+      io.to(data.roomName).emit("new number", { speed: currentRoom.speed });
     }
   });
 
-  socket.on("boxPosition", function (data) {
-    // socket.emit("new number", data);
-    socket.to(roomName).emit("update boxPosition", data);
-  });
-  let time = 0;
-  const timeElapsed = setInterval(() => {
-    time += 0.25;
-  }, 10);
-
-  let isSinusEnabled = false;
-
-  const sinusInterval = setInterval(() => {
-    if (isSinusEnabled && speed >= 1) {
-      console.log("sinus interval on");
-      const sinus = Math.sin((0.625 * Math.PI * time) / 60);
-      speed += sinus;
-
-      speed = Math.max(0, Math.min(speed, 250));
-
-      socket.to(roomName).emit("new number", speed);
+  socket.on("boxPosition", (data) => {
+    const currentRoom = roomMapper.get(data.roomName);
+    if (currentRoom && currentRoom.speed >= 1) {
+      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
+      currentRoom.boxPosition = data.boxPosition + sinus;
+      socket.to(data.roomName).emit("update boxPosition", {
+        boxPosition: currentRoom.boxPosition,
+        speed: currentRoom.speed,
+      });
     }
-  }, 50);
+  });
 
   socket.on("leaveRoom", (data) => {
-    console.log("room to leave: ", data.roomName)
-    // roomtoleave = data.roomName;
+    console.log("room to leave: ", data.roomName);
     socket.to(data.roomName).emit("leaveRoomFromServer");
     socket.leave(data.roomName);
-
-    // if (io.sockets.adapter.rooms.has(data.roomName)) {
-    //   delete io.sockets.adapter.rooms[data.roomName];
-    //   console.log("All rooms after leave: ", adapter.rooms);
-
-    // } else {
-    //   console.log(`Room ${roomName} not found.`);
-    // }
-
+    roomMapper.delete(data.roomName);
+    console.log(Array.from(roomMapper.keys()));
   });
-  var roomtoleave;
 
   socket.on("disconnect", () => {
-
-    socket.leave(roomtoleave);
     socket.disconnect();
     console.log("user disconnected");
     console.log("after leave2: ", adapter.rooms);
-    clearInterval(speedReductionInterval);
-    clearInterval(sinusInterval);
-    clearInterval(timeElapsed);
+    // clearInterval(speedReductionInterval);
+    // clearInterval(sinusInterval);
+    // clearInterval(timeElapsed);
   });
-
 });

@@ -75,17 +75,27 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: DaytonaPro
+      fonts:
+        - asset: fonts/DaytonaPro-Regular.ttf
+        - asset: fonts/DaytonaPro-Bold.ttf
+        - asset: fonts/DaytonaPro-BoldItalic.ttf
+          style: italic
+        - asset: fonts/DaytonaPro-Fat.ttf
+        - asset: fonts/DaytonaPro-FatItalic.ttf
+          style: italic
+        - asset: fonts/DaytonaPro-Italic.ttf
+          style: italic
+        - asset: fonts/DaytonaPro-Light.ttf
+        - asset: fonts/DaytonaPro-LightItalic.ttf
+          style: italic
+        - asset: fonts/DaytonaPro-Semibold.ttf
+        - asset: fonts/DaytonaPro-SemiboldItalic.ttf
+          style: italic
+        - asset: fonts/DaytonaPro-Thin.ttf
+        - asset: fonts/DaytonaPro-ThinItalic.ttf
+          style: italic
+
+  #For details regarding fonts from package dependencies,
+  #see https://flutter.dev/custom-fonts/#from-packages
