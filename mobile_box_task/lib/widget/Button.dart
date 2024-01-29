@@ -23,7 +23,7 @@ class Button extends StatelessWidget {
           elevation: 4,
         ),
         child: SizedBox(
-            width: 60,
+            width: 70,
             height: 40,
             child: Center(
               child: Text(text),
