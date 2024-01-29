@@ -9,6 +9,7 @@ class DrivingData extends ChangeNotifier {
   late String totalElapsedTime;
   List<int> drtTimes = [];
   late String meanDRT;
+  late DrivingData drivingData;
 
   static late String roomName;
 
@@ -45,15 +46,16 @@ class DrivingData extends ChangeNotifier {
   }
 
 // calculate mean of milliSeconds(int) in form 0.00s(String)
-  String calculateDurationMean(List<int> list) {
-    if (list.isNotEmpty) {
+  void calculateDurationMean() {
+    if (drtTimes.isNotEmpty) {
       double meanDuration =
-          list.reduce((value, element) => value + element) / list.length;
+          drtTimes.reduce((value, element) => value + element) /
+              drtTimes.length;
 
       String res = "${(meanDuration / 1000).toStringAsFixed(2)}s";
-      return res;
+      meanDRT = res;
     }
-    return "0s";
+    meanDRT = "0s";
   }
 
 // calculate
@@ -71,6 +73,5 @@ class DrivingData extends ChangeNotifier {
     stopwatch.stop();
     print('Duration: ${stopwatch.elapsed}');
     totalElapsedTime = formatDuration(stopwatch.elapsed);
-    meanDRT = calculateDurationMean(drtTimes);
   }
 }

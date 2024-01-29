@@ -29,7 +29,7 @@ class _DrivingState extends State<Driving> {
   List<double> accelerometer = [0.0, 0.0, 0.0];
   List<double> gyroscope = [0.0, 0.0, 0.0];
   double boxPosition = 0;
-  bool _isReady = true;
+  bool _isReady = false;
   late Timer _timer;
   late IO.Socket socket;
   double speed = 0.0;
@@ -37,6 +37,8 @@ class _DrivingState extends State<Driving> {
   bool isBrakePressed = false;
   bool hasToClick = false;
   int count = 0;
+  int countTimerOption = 0;
+  late DrivingData drivingData2;
 
   Timer? gasTimer;
   Timer? brakeTimer;
@@ -48,8 +50,8 @@ class _DrivingState extends State<Driving> {
   void initState() {
     super.initState();
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
-
-    // startCountdown(3);
+    drivingData2 = Provider.of<DrivingData>(context, listen: false);
+    startCountdown(3);
     setHasToClickAfterRandomTime();
     stopwatchDuration.start();
 
@@ -91,30 +93,39 @@ class _DrivingState extends State<Driving> {
     // });
   }
 
-  // void startCountdown(int duration) {
-  //   count = duration;
-  //   const oneSecond = Duration(seconds: 1);
-  //   _timer = Timer.periodic(oneSecond, (timer) {
-  //     setState(() {
-  //       if (count > 0) {
-  //         count--;
-  //       } else {
-  //         if (ReadyToStartPage.isChecked) {
-  //           if (_isReady) {
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                     builder: (context) => const CompletePage()));
-  //           } else {
-  //             startCountdown(4);
-  //           }
-  //         }
-  //         timer.cancel();
-  //         _isReady = true;
-  //       }
-  //     });
-  //   });
-  // }
+  void startCountdown(int duration) {
+    count = duration;
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (timer) {
+      setState(() {
+        if (count > 0) {
+          count--;
+        } else {
+          timer.cancel();
+          _isReady = true;
+          if (ReadyToStartPage.isChecked) startCountdownForTimer(4);
+        }
+      });
+    });
+  }
+
+  void startCountdownForTimer(int duration) {
+    _isReady = true;
+    countTimerOption = duration;
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (timer) {
+      setState(() {
+        if (countTimerOption > 0) {
+          countTimerOption--;
+        } else {
+          drivingData2.calculateDurationMean();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const CompletePage()));
+          timer.cancel();
+        }
+      });
+    });
+  }
 
   void disconnectFromFlutter() {
     // send the leave event to server
@@ -210,7 +221,6 @@ class _DrivingState extends State<Driving> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
 
     DrivingData drivingData = Provider.of<DrivingData>(context);
-    // print('Received new speed: $speed');
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -244,12 +254,12 @@ class _DrivingState extends State<Driving> {
                   ),
                 ),
               ),
-            if (ReadyToStartPage.isChecked)
+            if (ReadyToStartPage.isChecked && _isReady)
               Positioned(
-                top: 16,
+                top: 36,
                 left: MediaQuery.of(context).size.width * 0.49,
                 child: Text(
-                  '$count',
+                  '$countTimerOption',
                   style: const TextStyle(fontSize: 40, color: Colors.blue),
                 ),
               ),
@@ -280,34 +290,34 @@ class _DrivingState extends State<Driving> {
                   ],
                 ),
               ),
-            if (_isReady)
-              if (!ReadyToStartPage.isChecked)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: InkWell(
-                    onTap: () {
-                      drivingData.totalTime(stopwatchDuration);
-                      disconnectFromFlutter();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CompletePage(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(8),
+            if (_isReady && !ReadyToStartPage.isChecked)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  onTap: () {
+                    drivingData.totalTime(stopwatchDuration);
+                    drivingData.calculateDurationMean();
+                    disconnectFromFlutter();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CompletePage(),
                       ),
-                      padding: const EdgeInsets.all(8),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
                     ),
                   ),
                 ),
+              ),
             if (_isReady) //!äußere Begrenzung
               Positioned(
                 child: Center(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/main.dart';
+import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
@@ -32,14 +33,20 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Gas pressed: ${drivingData.countGas} ",
+                    "mistakes: ${drivingData.countGas} ",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    "Brake pressed : ${drivingData.countBrake}",
-                    style: TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
+                  if (!ReadyToStartPage.isChecked)
+                    Text(
+                      "Total Time: ${drivingData.totalElapsedTime}",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                  if (ReadyToStartPage.isChecked)
+                    Text(
+                      "Total Time: 01:20:000",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
                 ],
               ),
               Row(
@@ -55,10 +62,6 @@ class CompletePage extends StatelessWidget {
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    "Total Time: ${drivingData.totalElapsedTime}",
-                    style: TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),
