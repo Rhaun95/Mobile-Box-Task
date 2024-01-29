@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
   // let time = 0;
   const timeElapsed = setInterval(() => {
     roomMapper.forEach((data, roomName) => {
-      data.time += 0.1;
+      data.time += 0.05;
     });
   }, 1);
 
