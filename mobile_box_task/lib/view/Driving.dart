@@ -52,14 +52,6 @@ class _DrivingState extends State<Driving> {
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
-      // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.178.20:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': true,
-    });
-
     socket.emit("join room", DrivingHelper.roomName);
 
     stopwatchDuration.start();
@@ -127,8 +119,8 @@ class _DrivingState extends State<Driving> {
         if (countTimerOption > 0) {
           countTimerOption--;
         } else {
-          //drivinghelper.totalTime(stopwatchDuration);
-          //drivinghelper.calculateDurationMean();
+          disconnectFromFlutter();
+          drivinghelper.calculateDurationMean();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const CompletePage()));
           timer.cancel();
