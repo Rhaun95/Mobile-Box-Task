@@ -42,6 +42,8 @@ class _DrivingState extends State<Driving> {
   Timer? gasTimer;
   Timer? brakeTimer;
 
+  int exceedsBox = 0;
+
   Stopwatch stopwatchDuration = Stopwatch();
   Stopwatch stopwatchDRT = Stopwatch();
 
@@ -52,13 +54,7 @@ class _DrivingState extends State<Driving> {
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    socket = IO.io('http://box-task.imis.uni-luebeck.de/', <String, dynamic>{
-      // socket = IO.io('http://box-task-server:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.178.20:3001', <String, dynamic>{
-      // socket = IO.io('http://192.168.178.22:3001', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': true,
-    });
+    //exceedsBoxFrame();
 
     socket.emit("join room", DrivingHelper.roomName);
 
@@ -100,6 +96,16 @@ class _DrivingState extends State<Driving> {
     //     socket.on('disconnect', (_) {
     //   print('Disconnected from server');
     // });
+    // void exceedsBoxFrame() {
+    //   setState(() {
+    //     if (speed >= 175) {
+    //       exceedsBox++;
+    //       drivinghelper.ed.setExceedsBoxFrame(
+    //           {exceedsBox: stopwatchDuration.elapsedMilliseconds.toString()});
+    //       print("Box frame has been surpassed");
+    //     }
+    //   });
+    // }
   }
 
   void startCountdown(int duration) {
