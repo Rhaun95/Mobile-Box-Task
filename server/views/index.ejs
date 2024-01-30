@@ -134,8 +134,10 @@
   });
 
   socket.on("leaveRoomFromServer", () => {
-    socket.disconnect();
+    // showRoom = "Room: ";
+    // roomNameInput.value = "";
     location.reload();
+    socket.disconnect();
 
   })
 
