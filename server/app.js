@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
         io.to(currentRoom).emit("new number", { speed: data.speed });
       }
     });
-  }, 50);
+  }, 100);
 
   // let time = 0;
   const timeElapsed = setInterval(() => {
