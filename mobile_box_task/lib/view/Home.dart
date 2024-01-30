@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_box_task/provider/DrivingData.dart';
+import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:mobile_box_task/provider/SocketProvider.dart';
 import 'package:mobile_box_task/view/InstructionPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
@@ -38,9 +38,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    DrivingData drivingData = Provider.of<DrivingData>(context);
-    DrivingData.roomName = drivingData.generateRandomString();
-    print('YOUR ROOM: ${DrivingData.roomName}');
+    DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
+    DrivingHelper.roomName = drivingData.generateRandomString();
+    print('YOUR ROOM: ${DrivingHelper.roomName}');
     SocketProvider socketProvider = Provider.of<SocketProvider>(context);
     socketProvider.join();
 
