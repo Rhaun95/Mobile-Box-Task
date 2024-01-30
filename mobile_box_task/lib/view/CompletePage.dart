@@ -34,7 +34,7 @@ class CompletePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "mistakes: .....0.00s ",
+                    "mistakes: ${drivingData.ed.getExceedsBoxFrame().length} ",
                     style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
                   const SizedBox(width: 10),

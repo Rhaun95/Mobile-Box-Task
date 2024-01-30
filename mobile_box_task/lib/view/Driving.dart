@@ -5,7 +5,6 @@ import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:mobile_box_task/view/CompletePage.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/view/SliderPage.dart';
@@ -13,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
-
+import '../helper/DrivingHelper.dart';
 import '../provider/SocketProvider.dart';
 
 class Driving extends StatefulWidget {
@@ -42,10 +41,11 @@ class _DrivingState extends State<Driving> {
   Timer? gasTimer;
   Timer? brakeTimer;
 
-  int exceedsBox = 0;
-
   Stopwatch stopwatchDuration = Stopwatch();
   Stopwatch stopwatchDRT = Stopwatch();
+
+  bool isOver = false;
+  bool isLess = true;
 
   @override
   void initState() {
@@ -54,7 +54,6 @@ class _DrivingState extends State<Driving> {
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
     startCountdown(3);
     setHasToClickAfterRandomTime();
-    //exceedsBoxFrame();
 
     socket.emit("join room", DrivingHelper.roomName);
 
@@ -86,6 +85,7 @@ class _DrivingState extends State<Driving> {
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"];
+        exceedsBoxFrame();
       });
     });
 
@@ -96,16 +96,6 @@ class _DrivingState extends State<Driving> {
     //     socket.on('disconnect', (_) {
     //   print('Disconnected from server');
     // });
-    // void exceedsBoxFrame() {
-    //   setState(() {
-    //     if (speed >= 175) {
-    //       exceedsBox++;
-    //       drivinghelper.ed.setExceedsBoxFrame(
-    //           {exceedsBox: stopwatchDuration.elapsedMilliseconds.toString()});
-    //       print("Box frame has been surpassed");
-    //     }
-    //   });
-    // }
   }
 
   void startCountdown(int duration) {
@@ -216,6 +206,24 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  void exceedsBoxFrame() {
+    if (speed >= 170 && !isOver) {
+      drivinghelper.ed
+          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      isOver = true;
+    } else if (speed <= 75 && !isLess) {
+      drivinghelper.ed
+          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      isLess = true;
+    }
+    if (speed < 170) {
+      isOver = false;
+    }
+    if (speed >= 75) {
+      isLess = false;
+    }
+  }
+
   void updateSliderState() {
     setState(() {
       socket.emit("slider change",
@@ -235,7 +243,6 @@ class _DrivingState extends State<Driving> {
   @override
   Widget build(BuildContext context) {
     DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
-
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(

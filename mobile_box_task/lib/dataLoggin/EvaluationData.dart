@@ -3,7 +3,7 @@ class EvaluationData {
   String totalElapsedTime = "";
   List<int> drtTimes = [];
   String meanDRT = "";
-  late Map<int, String> exceedsBoxFrame;
+  List<String> exceedsBoxFrame = [];
 
   int getCountDRT() {
     return countDRT;
@@ -21,12 +21,12 @@ class EvaluationData {
     return meanDRT;
   }
 
-  Map<int, String> getExceedsBoxFrame() {
+  List<String> getExceedsBoxFrame() {
     return exceedsBoxFrame;
   }
 
-  void setExceedsBoxFrame(Map<int, String> value) {
-    exceedsBoxFrame = value;
+  void setExceedsBoxFrame(String time) {
+    this.exceedsBoxFrame.add(time);
   }
 
   void setTotalElapsedTime(String totalElapsedTime) {
