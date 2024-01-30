@@ -75,7 +75,7 @@ io.on("connection", (socket) => {
     roomMapper.forEach((data, currentRoom) => {
       io.to(currentRoom).emit("new number", { speed: data.speed });
     });
-  }, 100);
+  }, 1);
 
   socket.on("gas button state", (data) => {
     if (data.isGasPressed)

@@ -26,7 +26,7 @@ class EvaluationData {
   }
 
   void setExceedsBoxFrame(String time) {
-    this.exceedsBoxFrame.add(time);
+    exceedsBoxFrame.add(time);
   }
 
   void setTotalElapsedTime(String totalElapsedTime) {
