@@ -84,7 +84,24 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          buildTimerSlider(),
+                          Column(
+                            children: [
+                              const Text(
+                                "Use Timer",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                              CupertinoSwitch(
+                                activeColor: Colors.blue,
+                                value: ReadyToStartPage.isChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    ReadyToStartPage.isChecked = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       Align(
@@ -144,34 +161,6 @@ class _ReadyToStartPageState extends State<ReadyToStartPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget buildTimerSlider() {
-    return Column(
-      children: [
-        const Positioned(
-          right: 15,
-          top: 55,
-          child: Text(
-            "Use Timer",
-            style: TextStyle(fontSize: 15, color: Colors.white),
-          ),
-        ),
-        Positioned(
-          right: 16,
-          top: 16,
-          child: CupertinoSwitch(
-            activeColor: Colors.blue,
-            value: ReadyToStartPage.isChecked,
-            onChanged: (value) {
-              setState(() {
-                ReadyToStartPage.isChecked = value;
-              });
-            },
-          ),
-        ),
-      ],
     );
   }
 }
