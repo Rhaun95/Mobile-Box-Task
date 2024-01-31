@@ -168,7 +168,7 @@ io.on("connection", (socket) => {
     if (currentRoom && currentRoom.speed >= 1) {
       const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
       currentRoom.boxPosition = data.boxPosition + sinus;
-      socket.to(data.roomName).emit("update boxPosition", {
+      io.to(data.roomName).emit("update boxPosition", {
         boxPosition: currentRoom.boxPosition,
         speed: currentRoom.speed,
       });
