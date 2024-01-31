@@ -66,30 +66,19 @@ class _CompletePageState extends State<CompletePage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "mistakes: ${drivingData.ed.getExceedsBoxFrame().length} ",
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    const SizedBox(width: 10),
-                    if (ReadyToStartPage.isChecked)
-                      const Text(
-                        "Total Time: 01:20:000",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
                     if (!ReadyToStartPage.isChecked)
                       Text(
                         "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                       ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                    Text(
+                      "Mistakes: ${drivingData.ed.getExceedsBoxFrame().length} ",
+                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                     Text(
                       "DRT pressed : ${drivingData.ed.getCountDRT()}",
                       style: const TextStyle(fontSize: 15, color: Colors.white),
@@ -99,7 +88,6 @@ class _CompletePageState extends State<CompletePage> {
                       "DRT mean : ${drivingData.ed.getMeanDRT()}",
                       style: const TextStyle(fontSize: 15, color: Colors.white),
                     ),
-                    const SizedBox(width: 10),
                   ],
                 ),
                 Align(

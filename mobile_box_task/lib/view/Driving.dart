@@ -102,7 +102,7 @@ class _DrivingState extends State<Driving> {
         } else {
           timer.cancel();
           _isReady = true;
-          if (ReadyToStartPage.isChecked) startCountdownForTimer(4);
+          if (ReadyToStartPage.isChecked) startCountdownForTimer(30);
         }
       });
     });
@@ -259,7 +259,7 @@ class _DrivingState extends State<Driving> {
                   Center(
                     child: Text(
                       '$count',
-                      style: const TextStyle(fontSize: 60, color: Colors.blue),
+                      style: const TextStyle(fontSize: 60, color: Colors.white),
                     ),
                   ),
                 if (_isReady)
@@ -270,17 +270,28 @@ class _DrivingState extends State<Driving> {
                       child: Text(
                         'Room Name: ${DrivingHelper.roomName}',
                         style:
-                            const TextStyle(fontSize: 20, color: Colors.blue),
+                            const TextStyle(fontSize: 20, color: Colors.white),
                       ),
                     ),
                   ),
                 if (ReadyToStartPage.isChecked && _isReady)
                   Positioned(
-                    top: 36,
-                    left: MediaQuery.of(context).size.width * 0.49,
-                    child: Text(
-                      '$countTimerOption',
-                      style: const TextStyle(fontSize: 40, color: Colors.blue),
+                    top: 16,
+                    left: 16,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Text(
+                        '$countTimerOption',
+                        style: const TextStyle(
+                          fontSize: 40,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 if (_isReady)
