@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
-
+import '../helper/DrivingHelper.dart';
 import '../provider/SocketProvider.dart';
 
 class Driving extends StatefulWidget {
@@ -46,6 +46,9 @@ class _DrivingState extends State<Driving> {
   Stopwatch stopwatchDuration = Stopwatch();
   Stopwatch stopwatchDRT = Stopwatch();
 
+  bool isOver = false;
+  bool isLess = true;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,7 @@ class _DrivingState extends State<Driving> {
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
     startCountdown(3);
     setHasToClickAfterRandomTime();
+
     socket.emit("join room", DrivingHelper.roomName);
 
     SystemChrome.setPreferredOrientations([
@@ -88,6 +92,7 @@ class _DrivingState extends State<Driving> {
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"];
+        exceedsBoxFrame();
       });
     });
 
@@ -211,6 +216,24 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  void exceedsBoxFrame() {
+    if (speed >= 170 && !isOver) {
+      drivinghelper.ed
+          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      isOver = true;
+    } else if (speed <= 75 && !isLess) {
+      drivinghelper.ed
+          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      isLess = true;
+    }
+    if (speed < 170) {
+      isOver = false;
+    }
+    if (speed >= 75) {
+      isLess = false;
+    }
+  }
+
   void updateSliderState() {
     setState(() {
       socket.emit("slider change",
@@ -230,7 +253,6 @@ class _DrivingState extends State<Driving> {
   @override
   Widget build(BuildContext context) {
     DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
-
     return Directionality(
         textDirection: TextDirection.ltr,
         child: Builder(builder: (context) {

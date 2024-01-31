@@ -42,72 +42,65 @@ class _CompletePageState extends State<CompletePage> {
 
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF092735), Color(0xFF0F111A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Complete",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          title: const Center(child: Text('Moblie Box Task')),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              const Text(
+                "Complete",
+                style: TextStyle(fontSize: 40, color: Colors.blue),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "mistakes: ${drivingData.ed.getExceedsBoxFrame().length} ",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "mistakes: .....0.00s ",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    const SizedBox(width: 10),
-                    if (ReadyToStartPage.isChecked)
-                      const Text(
-                        "Total Time: 01:20:000",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    if (!ReadyToStartPage.isChecked)
-                      Text(
-                        "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  const SizedBox(width: 10),
+                  if (ReadyToStartPage.isChecked)
                     Text(
-                      "DRT pressed : ${drivingData.ed.getCountDRT()}",
-                      style: const TextStyle(fontSize: 15, color: Colors.white),
+                      "Total Time: 01:20:000",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
                     ),
-                    const SizedBox(width: 10),
+                  if (!ReadyToStartPage.isChecked)
                     Text(
-                      "DRT mean : ${drivingData.ed.getMeanDRT()}",
-                      style: const TextStyle(fontSize: 15, color: Colors.white),
+                      "Total Time: ${drivingData.ed.getTotalElapsedTime()}",
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
                     ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Button(
-                        onPressed: () {
-                          Navigator.push(
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "DRT pressed : ${drivingData.ed.getCountDRT()}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "DRT mean : ${drivingData.ed.getMeanDRT()}",
+                    style: TextStyle(fontSize: 15, color: Colors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                      onPressed: () {
+                        //Change the orientation back to portrait
+                        SystemChrome.setPreferredOrientations([
+                          DeviceOrientation.portraitUp,
+                          DeviceOrientation.portraitDown,
+                        ]);
+
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const MBTApp(),
