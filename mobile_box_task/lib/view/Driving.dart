@@ -85,14 +85,13 @@ class _DrivingState extends State<Driving> {
       });
     });
 
-    socket.on("update boxPosition",
-        (data) => {boxPosition = data["speed"], print("Hallo")});
+    //socket.on("update boxPosition",
+    // (data) => {boxPosition = data["speed"], print("Hallo")});
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"].toDouble();
         exceedsBoxFrame();
-        print("Test123");
       });
     });
   }
