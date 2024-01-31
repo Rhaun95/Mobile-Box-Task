@@ -134,8 +134,8 @@
   });
 
   socket.on("leaveRoomFromServer", () => {
-    // showRoom = "Room: ";
-    // roomNameInput.value = "";
+    showRoom = "Room: ";
+    roomNameInput.value = "";
     location.reload();
     socket.disconnect();
 

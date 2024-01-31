@@ -50,8 +50,9 @@ class _DrivingState extends State<Driving> {
   @override
   void initState() {
     super.initState();
-    drivinghelper = Provider.of<DrivingHelper>(context, listen: false);
     socket = Provider.of<SocketProvider>(context, listen: false).getSocket();
+    drivinghelper = Provider.of<DrivingHelper>(context, listen: false);
+
     startCountdown(3);
     setHasToClickAfterRandomTime();
 
@@ -86,7 +87,7 @@ class _DrivingState extends State<Driving> {
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
-        speed = receivedSpeed["speed"];
+        speed = receivedSpeed["speed"].toDouble();
         exceedsBoxFrame();
       });
     });

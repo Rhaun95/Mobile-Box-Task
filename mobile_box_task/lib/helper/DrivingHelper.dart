@@ -9,11 +9,11 @@ class DrivingHelper extends ChangeNotifier {
   EvaluationData ed = new EvaluationData();
 
   String generateRandomString() {
-    const String characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const String characters = '0123456789';
     Random random = Random();
     String randomString = '';
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 4; i++) {
       int randomIndex = random.nextInt(characters.length);
       randomString += characters[randomIndex];
     }
