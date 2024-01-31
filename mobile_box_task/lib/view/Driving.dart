@@ -1,7 +1,6 @@
 // ignore_for_file: library_prefixes, library_private_types_in_public_api
 
 import 'dart:async';
-import 'dart:math' as math;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:vibration/vibration.dart';
-import '../helper/DrivingHelper.dart';
 import '../provider/SocketProvider.dart';
 
 class Driving extends StatefulWidget {
@@ -86,23 +84,12 @@ class _DrivingState extends State<Driving> {
       });
     });
 
-    socket.onConnect((_) {
-      print('Connected to server');
-    });
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"];
         exceedsBoxFrame();
       });
     });
-
-    // socket.onDisconnect((_) {
-    //   print('Disconnected from server');
-    // });
-
-    //     socket.on('disconnect', (_) {
-    //   print('Disconnected from server');
-    // });
   }
 
   void startCountdown(int duration) {
@@ -313,7 +300,7 @@ class _DrivingState extends State<Driving> {
                         ),
                         Center(
                           child: Text(
-                            speed.toInt().toString() + ' Km/h',
+                            '${speed.toInt()} Km/h',
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.0,

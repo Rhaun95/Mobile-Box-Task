@@ -4,9 +4,10 @@ import 'package:mobile_box_task/view/ReadyToStartPage.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 
 class RotatingOrangePhone extends StatefulWidget {
-  const RotatingOrangePhone({Key? key}) : super(key: key);
+  const RotatingOrangePhone({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RotatingOrangePhoneState createState() => _RotatingOrangePhoneState();
 }
 

@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/helper/DrivingHelper.dart';
 import 'package:mobile_box_task/view/Driving.dart';
-import 'package:mobile_box_task/view/Home.dart';
 import 'package:mobile_box_task/widget/Button.dart';
-import 'package:provider/provider.dart';
 
 class ReadyToStartPage extends StatefulWidget {
   const ReadyToStartPage({Key? key}) : super(key: key);
