@@ -28,12 +28,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     )..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 1, end: 1.4).animate(_controller);
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
   }
 
   @override
@@ -124,7 +135,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           width: 75,
                           height: 75,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.orange, width: 4),
+                            border:
+                                Border.all(color: Color(0xFFFF9800), width: 4),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -158,10 +170,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 Expanded(
                   child: Button(
                     onPressed: () {
-                      SystemChrome.setPreferredOrientations([
-                        DeviceOrientation.portraitUp,
-                        DeviceOrientation.portraitDown,
-                      ]);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
