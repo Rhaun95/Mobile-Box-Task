@@ -1,46 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/styles/style.css" rel="stylesheet" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="/styles/style.css" rel="stylesheet" />
-</head>
+  <body class="overflow-hidden">
+    <div class="w-screen bg-gradient-to-br from-[#092735] to-[#0F111A]">
+      <div class="font-bold text-2xl text-white" id="showRoom">Room:</div>
 
-<body class="overflow-hidden">
-  <div class="w-screen bg-gray-800 ">
-    <div class="font-bold text-2xl text-white" id="showRoom">Room: </div>
-
-    <main class="w-screen h-screen flex justify-center items-center">
-      <div id="myModal" class=" bg-gray-100 absolute shadow-md p-6 rounded-md z-20">
-        <div class="font-bold text-2xl">
-          <span id="modalLabel" class="">Room: </span>
-          <input class=" border border-gray-800 pl-3" type="text" id="roomNameInput" name="roomNameInput" />
+      <main class="w-screen h-screen flex justify-center items-center">
+        <div
+          id="myModal"
+          class="bg-gray-100 absolute shadow-md p-6 rounded-md z-20"
+        >
+          <div class="font-bold text-2xl">
+            <span id="modalLabel" class="">Room: </span>
+            <input
+              class="border border-gray-800 pl-3"
+              type="text"
+              id="roomNameInput"
+              name="roomNameInput"
+            />
+          </div>
+          <input
+            class="w-[75px] h-[35px] text-white bg-gray-600 cursor-pointer stroke-white stroke-2 rounded-lg mt-5"
+            type="button"
+            value="Join"
+            onclick="onConfirm()"
+          />
         </div>
-        <input class="w-[75px] h-[35px] text-white bg-gray-600 cursor-pointer stroke-white stroke-2 rounded-lg mt-5"
-          type="button" value="Join" onclick="onConfirm()" />
-      </div>
 
-      <ul id="messages"></ul>
-      <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
-        id="brake" type="button" name="brake" value="Brake" />
-      <input
-        class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
-        id="gas" type="button" name="gas" value="Gas" />
-      <div class="w-[225px] h-[225px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"></div>
+        <ul id="messages"></ul>
+        <input
+          class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 left-10 text-4xl font-semibold z-10 hidden"
+          id="brake"
+          type="button"
+          name="brake"
+          value="Brake"
+        />
+        <input
+          class="w-32 h-32 rounded-lg shadow-lg bg-gray-300 hover:scale-105 cursor-pointer absolute bottom-10 right-10 text-4xl font-semibold z-10 hidden"
+          id="gas"
+          type="button"
+          name="gas"
+          value="Gas"
+        />
+        <div
+          class="w-[225px] h-[225px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+        ></div>
 
-      <div class="bg-blue-700 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
-        id="drivingBox"></div>
-      <span id="sum" class="font-bold text-4xl text-white stroke-white stroke-2 absolute"></span>
+        <div
+          class="bg-blue-700 absolute shadow-gray-950 shadow-2xl flex justify-center items-center rounded"
+          id="drivingBox"
+        ></div>
+        <span
+          id="sum"
+          class="font-bold text-4xl text-white stroke-white stroke-2 absolute"
+        ></span>
 
-      <div class="w-[525px] h-[525px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"></div>
-    </main>
-  </div>
-</body>
-
+        <div
+          class="w-[525px] h-[525px] border-4 border-yellow-400 absolute shadow-xl rounded-lg z-10"
+        ></div>
+      </main>
+    </div>
+  </body>
 </html>
-
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
@@ -58,13 +84,12 @@
   var sum = document.getElementById("sum");
   var showRoom = document.getElementById("showRoom");
   var drivingBox = document.getElementById("drivingBox");
-  var modalLabel = document.getElementById('modalLabel');
-  var roomNameInput = document.getElementById('roomNameInput')
+  var modalLabel = document.getElementById("modalLabel");
+  var roomNameInput = document.getElementById("roomNameInput");
   var intervalId = null;
   var speed = 0;
   var accelerationFactor = 50;
   var pressed = false;
-
 
   // join Fenster beim Laden öffnen
   window.onload = openModal;
@@ -76,12 +101,12 @@
 
   // Join Fester öffnen
   function openModal() {
-    document.getElementById('myModal').classList.remove('hidden');
+    document.getElementById("myModal").classList.remove("hidden");
   }
 
   //  Join Fester schließen
   function closeModal() {
-    document.getElementById('myModal').classList.add('hidden');
+    document.getElementById("myModal").classList.add("hidden");
   }
 
   // Join Click event
@@ -97,7 +122,7 @@
         closeModal();
       } else {
         modalLabel.textContent += " incorrect";
-        modalLabel.classList.add('text-red-500');
+        modalLabel.classList.add("text-red-500");
         roomNameInput.value = "";
       }
     });
@@ -113,7 +138,6 @@
   }
   function updateBoxPostion(position) {
     drivingBox.style.left = position + "px";
-
   }
 
   socket.on("new number", (data) => {
@@ -122,13 +146,12 @@
     sum.textContent = Math.floor(speed) + " Km/h";
     var boxSize = speed;
     updateBoxSize(boxSize);
-
   });
 
   socket.on("update boxPosition", (data) => {
-
     let screenWidth = window.innerWidth;
-    var newBoxPosition = screenWidth * 0.5 - data.speed * 1.5 + data.boxPosition * 133;
+    var newBoxPosition =
+      screenWidth * 0.5 - data.speed * 1.5 + data.boxPosition * 133;
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
@@ -138,8 +161,7 @@
     roomNameInput.value = "";
     location.reload();
     socket.disconnect();
-
-  })
+  });
 
   // function increaseSpeed() {
   //   if (speed <= 250) {
@@ -162,7 +184,6 @@
   //   }
   // }
 
-
   // gas.addEventListener("mousedown", function () {
   //   intervalId = setInterval(increaseSpeed, 1); // Beschleunige alle 50 Millisekunden
   // });
@@ -180,6 +201,4 @@
   //   clearInterval(intervalId); // Beende das Intervall, wenn der Knopf losgelassen wird
   //   accelerationFactor = 50; // Setze den Beschleunigungsfaktor zurück
   // });
-
-
 </script>
