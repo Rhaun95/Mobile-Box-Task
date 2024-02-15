@@ -13,7 +13,7 @@ class DrivingHelper extends ChangeNotifier {
     Random random = Random();
     String randomString = '';
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 6; i++) {
       int randomIndex = random.nextInt(characters.length);
       randomString += characters[randomIndex];
     }
