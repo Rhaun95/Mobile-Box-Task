@@ -36,6 +36,7 @@ class _DrivingState extends State<Driving> {
   bool hasToClick = false;
   int count = 0;
   int countTimerOption = 0;
+  double newBoxPosition = 0;
   late DrivingHelper drivinghelper;
 
   Timer? gasTimer;
@@ -68,25 +69,29 @@ class _DrivingState extends State<Driving> {
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        if (-10 <= boxPosition && boxPosition <= 10) {
-          if (boxPosition < 0) {
-            boxPosition = event.y.toDouble();
+        if (-10 <= newBoxPosition && newBoxPosition <= 10) {
+          if (newBoxPosition < 0) {
+            newBoxPosition = event.y.toDouble();
           } else {
-            boxPosition = event.y.toDouble();
+            newBoxPosition = event.y.toDouble();
           }
         } else {
-          boxPosition = 0;
+          newBoxPosition = 0;
         }
 
         socket.emit('boxPosition', {
           'roomName': DrivingHelper.roomName,
-          'boxPosition': boxPosition,
+          'boxPosition': newBoxPosition,
         });
       });
     });
 
-    //socket.on("update boxPosition",
-    // (data) => {boxPosition = data["speed"], print("Hallo")});
+    socket.on(
+        "update boxPosition",
+        (data) => {
+              boxPosition = data["boxPosition"],
+              print("Hallo" + boxPosition.toString())
+            });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
