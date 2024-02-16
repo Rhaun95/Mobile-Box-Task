@@ -47,6 +47,7 @@ class _DrivingState extends State<Driving> {
 
   bool isOver = false;
   bool isLess = true;
+  bool isIn = true;
 
   @override
   void initState() {
@@ -86,17 +87,19 @@ class _DrivingState extends State<Driving> {
       });
     });
 
-    socket.on(
-        "update boxPosition",
-        (data) => {
-              boxPosition = data["boxPosition"],
-              print("Hallo" + boxPosition.toString())
-            });
+    socket.on("update boxPosition", (data) {
+      setState(() {
+        boxPosition = data["boxPosition"];
+
+        exceedsBoxFramePosition();
+      });
+    });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"].toDouble();
         exceedsBoxFrame();
+        // exceedsBoxFramePosition();
       });
     });
   }
@@ -212,6 +215,7 @@ class _DrivingState extends State<Driving> {
     });
   }
 
+  //Größefehler überprüfen
   void exceedsBoxFrame() {
     if (speed >= 170 && !isOver) {
       drivinghelper.ed
@@ -228,6 +232,32 @@ class _DrivingState extends State<Driving> {
     if (speed >= 75) {
       isLess = false;
     }
+  }
+
+  //Positionfehler überprüfen
+  void exceedsBoxFramePosition() {
+    double fixedSquareLeft =
+        MediaQuery.of(context).size.width / 2 - 175 * 0.5 - speed * 0.5;
+    double fixedSquareRight =
+        MediaQuery.of(context).size.width / 2 + 175 * 0.5 - speed * 0.5;
+
+    if ((getControlBoxPosition() - speed * 0.5 <= fixedSquareLeft ||
+            getControlBoxPosition() + speed * 0.5 >= fixedSquareRight) &&
+        isIn) {
+      isIn = false;
+      drivinghelper.ed
+          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      print(drivinghelper.ed.getExceedsBoxFrame().length);
+    }
+
+    if (getControlBoxPosition() - speed * 0.5 > fixedSquareLeft &&
+        getControlBoxPosition() + speed * 0.5 < fixedSquareRight) {
+      isIn = true;
+    }
+  }
+
+  double getControlBoxPosition() {
+    return MediaQuery.of(context).size.width * 0.5 - speed + boxPosition * 50;
   }
 
   void updateSliderState() {
@@ -309,9 +339,7 @@ class _DrivingState extends State<Driving> {
                       alignment: Alignment.center,
                       children: [
                         Positioned(
-                          left: MediaQuery.of(context).size.width * 0.5 -
-                              speed / 2 +
-                              boxPosition * 50,
+                          left: getControlBoxPosition(),
                           child: Container(
                             width: speed,
                             height: speed,

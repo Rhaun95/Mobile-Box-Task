@@ -125,7 +125,7 @@ io.on("connection", (socket) => {
   }, 10);
 
   socket.on("slider change", (data) => {
-    if (data.sliderValue)
+    if (data?.sliderValue)
       roomMapper.get(data.roomName).sliderValue = data.sliderValue / 1000;
   });
 
@@ -163,17 +163,20 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("boxPosition", (data) => {
-    const currentRoom = roomMapper.get(data.roomName);
-    if (currentRoom && currentRoom.speed >= 1) {
-      const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
-      currentRoom.boxPosition = data.boxPosition + sinus;
-      io.to(data.roomName).emit("update boxPosition", {
-        boxPosition: currentRoom.boxPosition,
-        speed: currentRoom.speed,
-      });
-    }
-  });
+
+  
+    socket.on("boxPosition", (data) => {
+      const currentRoom = roomMapper.get(data.roomName);
+      if (currentRoom && currentRoom.speed >= 1) {
+        const sinus = Math.sin(((0.75 * Math.PI * currentRoom.time) / 60) * 0.18);
+        currentRoom.boxPosition = data.boxPosition + sinus;
+        io.to(data.roomName).emit("update boxPosition", {
+          boxPosition: currentRoom.boxPosition,
+          speed: currentRoom.speed,
+        });
+      }
+    });
+
 
   socket.on("leaveRoom", (data) => {
     console.log("room to leave: ", data.roomName);

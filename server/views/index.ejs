@@ -151,7 +151,7 @@
   socket.on("update boxPosition", (data) => {
     let screenWidth = window.innerWidth;
     var newBoxPosition =
-      screenWidth * 0.5 - data.speed * 1.5 + data.boxPosition * 133;
+      screenWidth * 0.5 - data.speed*3 + data.boxPosition * 144;
     // newBoxPosition = Math.max(0, Math.min(screenWidth - drivingBox.offsetWidth, newBoxPosition));
     updateBoxPostion(newBoxPosition);
   });
