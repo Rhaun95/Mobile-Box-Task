@@ -95,6 +95,7 @@ flutter:
         - asset: fonts/DaytonaPro-SemiboldItalic.ttf
           style: italic
         - asset: fonts/DaytonaPro-Thin.ttf
+        - asset: assets/data.json
         - asset: fonts/DaytonaPro-ThinItalic.ttf
           style: italic
 

@@ -39,6 +39,8 @@ class _DrivingState extends State<Driving> {
   double newBoxPosition = 0;
   late DrivingHelper drivinghelper;
 
+  var errorNumber = 0;
+
   Timer? gasTimer;
   Timer? brakeTimer;
 
@@ -227,8 +229,9 @@ class _DrivingState extends State<Driving> {
   void exceedsBoxFrame() {
     //Wenn die Box wieder die gültige Größe hat, wird die letzte Messung gespeichert
     if (speed >= 75 && speed <= 175 && isError) {
-      drivinghelper.ed
-          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      drivinghelper.ed.setExceedsBoxFrame(
+          errorNumber, stopwatchDuration.elapsedMilliseconds.toString());
+      errorNumber++;
       isError = false;
     }
     if (speed > 175) {
@@ -267,6 +270,7 @@ class _DrivingState extends State<Driving> {
 
   //Positionfehler überprüfen
   void exceedsBoxFramePosition() {
+    double localValue = 0.00;
     double fixedSquareLeft =
         MediaQuery.of(context).size.width / 2 - 175 * 0.5 - speed * 0.5;
     double fixedSquareRight =
@@ -275,21 +279,27 @@ class _DrivingState extends State<Driving> {
     if (getControlBoxPosition() - speed * 0.5 >= fixedSquareLeft &&
         getControlBoxPosition() + speed * 0.5 <= fixedSquareRight &&
         !isIn) {
-      drivinghelper.ed
-          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+      drivinghelper.ed.setExceedsBoxFrame(
+          errorNumber, stopwatchDuration.elapsedMilliseconds.toString());
+      errorNumber++;
       isIn = true;
     }
 
-    if (getControlBoxPosition() - speed * 0.5 < fixedSquareLeft) {
+    localValue = fixedSquareLeft - (getControlBoxPosition() - speed * 0.5);
+    if (getControlBoxPosition() - speed * 0.5 < fixedSquareLeft &&
+        positionErrorIntensity < localValue) {
+      //drivinghelper.ed
+      positionErrorIntensity = localValue;
+      drivinghelper.ed.setMaxIntensityError(positionErrorIntensity);
       isIn = false;
-      positionErrorIntensity =
-          fixedSquareLeft - (getControlBoxPosition() - speed * 0.5);
     }
 
-    if (getControlBoxPosition() + speed * 0.5 > fixedSquareRight) {
+    localValue = (getControlBoxPosition() + speed * 0.5) - fixedSquareRight;
+    if (getControlBoxPosition() + speed * 0.5 > fixedSquareRight &&
+        positionErrorIntensity < localValue) {
       isIn = false;
-      positionErrorIntensity =
-          (getControlBoxPosition() + speed * 0.5) - fixedSquareRight;
+      positionErrorIntensity = localValue;
+      drivinghelper.ed.setMaxIntensityError(positionErrorIntensity);
     }
     // print(positionErrorIntensity);
   }
