@@ -47,7 +47,10 @@ class _DrivingState extends State<Driving> {
 
   bool isOver = false;
   bool isLess = true;
+  bool isError = false;
   bool isIn = true;
+  double positionErrorIntensity = 0;
+  double sizeErrorIntensity = 0;
 
   @override
   void initState() {
@@ -92,13 +95,18 @@ class _DrivingState extends State<Driving> {
         boxPosition = data["boxPosition"];
 
         exceedsBoxFramePosition();
+        exceedsBoxFrame();
+        // print(drivinghelper.ed.getExceedsBoxFrame().length);
+
+        // measureErrorIntensity();
       });
     });
 
     socket.on('new number', (receivedSpeed) {
       setState(() {
         speed = receivedSpeed["speed"].toDouble();
-        exceedsBoxFrame();
+        // measureErrorIntensity();
+
         // exceedsBoxFramePosition();
       });
     });
@@ -217,22 +225,45 @@ class _DrivingState extends State<Driving> {
 
   //Größefehler überprüfen
   void exceedsBoxFrame() {
-    if (speed >= 170 && !isOver) {
+    //Wenn die Box wieder die gültige Größe hat, wird die letzte Messung gespeichert
+    if (speed >= 75 && speed <= 175 && isError) {
       drivinghelper.ed
           .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
-      isOver = true;
-    } else if (speed <= 75 && !isLess) {
-      drivinghelper.ed
-          .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
-      isLess = true;
+      isError = false;
     }
-    if (speed < 170) {
-      isOver = false;
+    if (speed > 175) {
+      sizeErrorIntensity = speed - 175;
+      isError = true;
     }
-    if (speed >= 75) {
-      isLess = false;
+    if (speed < 75) {
+      sizeErrorIntensity = 75 - speed;
+      isError = true;
     }
+
+    // drivinghelper.ed
+    //     .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+    // sizeErrorIntensity = speed - 175.0;
+    // isOver = true;
+    // } else if (speed <= 75 && !isLess) {
+    // drivinghelper.ed
+    //     .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
+    // sizeErrorIntensity = 75.0 - speed;
+    // isLess = true;
+
+    print(sizeErrorIntensity);
   }
+
+  //Stärke des Positionfehlers
+  // void measureErrorIntensity() {
+  //   if (isOver == true && errorIntensity <= boxPosition - 175.0) {
+  //     errorIntensity = boxPosition - 175.0;
+  //   }
+  // print(
+  //     "error:" + errorIntensity.toString() + "   " + boxPosition.toString());
+  // print("boxposition:" +
+  //     boxPosition.toString() );
+  // print("isIn:" + isIn.toString());
+  // }
 
   //Positionfehler überprüfen
   void exceedsBoxFramePosition() {
@@ -240,20 +271,27 @@ class _DrivingState extends State<Driving> {
         MediaQuery.of(context).size.width / 2 - 175 * 0.5 - speed * 0.5;
     double fixedSquareRight =
         MediaQuery.of(context).size.width / 2 + 175 * 0.5 - speed * 0.5;
-
-    if ((getControlBoxPosition() - speed * 0.5 <= fixedSquareLeft ||
-            getControlBoxPosition() + speed * 0.5 >= fixedSquareRight) &&
-        isIn) {
-      isIn = false;
+    // wenn die Box wieder in dem gültigen Bereich liegt, wird die letzte Messung gespeichert
+    if (getControlBoxPosition() - speed * 0.5 >= fixedSquareLeft &&
+        getControlBoxPosition() + speed * 0.5 <= fixedSquareRight &&
+        !isIn) {
       drivinghelper.ed
           .setExceedsBoxFrame(stopwatchDuration.elapsedMilliseconds.toString());
-      print(drivinghelper.ed.getExceedsBoxFrame().length);
-    }
-
-    if (getControlBoxPosition() - speed * 0.5 > fixedSquareLeft &&
-        getControlBoxPosition() + speed * 0.5 < fixedSquareRight) {
       isIn = true;
     }
+
+    if (getControlBoxPosition() - speed * 0.5 < fixedSquareLeft) {
+      isIn = false;
+      positionErrorIntensity =
+          fixedSquareLeft - (getControlBoxPosition() - speed * 0.5);
+    }
+
+    if (getControlBoxPosition() + speed * 0.5 > fixedSquareRight) {
+      isIn = false;
+      positionErrorIntensity =
+          (getControlBoxPosition() + speed * 0.5) - fixedSquareRight;
+    }
+    // print(positionErrorIntensity);
   }
 
   double getControlBoxPosition() {
