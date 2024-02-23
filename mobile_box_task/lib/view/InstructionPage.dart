@@ -136,6 +136,15 @@ class InstructionPage extends StatelessWidget {
                               ),
                               SizedBox(height: 16),
                               Text(
+                                'Your secondary task will be to press the "Detection Response Task" Button which is located in the bottom left corner. This button will reappear randomly after a short while and its appearance is signaled through the vibration of the phone. Try to press it as fast as possible every time.',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
                                 "Now, go to the next page and hold your phone horizontally as if it were a steering wheel. Then, press the start button, and the Mobile Box Task will begin.",
                                 style: TextStyle(
                                   color: Colors.white,
