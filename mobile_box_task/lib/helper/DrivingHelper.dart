@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_box_task/dataLoggin/evaluationData.dart';
@@ -77,20 +79,33 @@ class DrivingHelper extends ChangeNotifier {
       "countDRT": data[1],
       "meanDRT": data[2],
       "totalElapsedTime": data[3],
-      "maxIntensityError": data[4],
       "drtTimes": data[5],
+      // ignore: equal_keys_in_map
+      // "exceedsBoxFrame": ed.getExceedsBoxFrame(),
+      "maxIntensityError": data[4],
     };
+    final jsonData = json.encode(json_data);
 
     try {
-      final file = File(
-          'G:\\programm\\MBT\\bp2324-mobile-box-task\\mobile_box_task\\assets\\data.json');
-      await file.writeAsString(json.encode(json_data));
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/data.json');
+
+      // Check if the file exists
+      if (await file.exists()) {
+        // If file exists, append data to the existing JSON array
+        List<dynamic> existingData =
+            json.decode(await rootBundle.loadString('data/data.json'));
+        existingData.add(json_data);
+        await file.writeAsString(json.encode(existingData));
+      } else {
+        // If file doesn't exist, create a new file with the data
+        await file.writeAsString(json.encode([json_data]));
+      }
+
       print("Data written to file successfully.");
     } catch (e) {
       print("Error writing to file: $e");
     }
-
-    print("ja wir kommen von hier vorbei habibi");
   }
 
   // Map<String, dynamic> toJson() => {
