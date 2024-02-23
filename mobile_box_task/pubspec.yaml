@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  path_provider: ^2.0.5
 
   # NEW
   sensors: ^2.0.3
@@ -95,7 +96,7 @@ flutter:
         - asset: fonts/DaytonaPro-SemiboldItalic.ttf
           style: italic
         - asset: fonts/DaytonaPro-Thin.ttf
-        - asset: assets/data.json
+        - asset: data/data.json
         - asset: fonts/DaytonaPro-ThinItalic.ttf
           style: italic
 

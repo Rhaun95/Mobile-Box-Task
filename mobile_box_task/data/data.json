@@ -1,0 +1,29 @@
+[
+  {
+    "RaumCode": 254,
+    "countDRT": 56,
+    "meanDRT": "01.00",
+    "totalElapsedTime": "0.552",
+    "drtTimes": "01.00",
+    "exceedsBoxFrame": 0,
+    "maxIntensityError": "355.00"
+  },
+  {
+    "RaumCode": 254,
+    "countDRT": 56,
+    "meanDRT": "01.00",
+    "totalElapsedTime": "0.552",
+    "drtTimes": "01.00",
+    "exceedsBoxFrame": "0.552",
+    "maxIntensityError": "355.00"
+  },
+  {
+    "RaumCode": 254,
+    "countDRT": 56,
+    "meanDRT": "01.00",
+    "totalElapsedTime": "0.552",
+    "drtTimes": "01.00",
+    "exceedsBoxFrame": "0.552",
+    "maxIntensityError": "355.00"
+  }
+]

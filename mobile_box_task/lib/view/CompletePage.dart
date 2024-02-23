@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_box_task/main.dart';
 import 'package:mobile_box_task/view/ReadyToStartPage.dart';
+import 'package:mobile_box_task/view/showData.dart';
 import 'package:mobile_box_task/widget/Button.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,7 @@ class _CompletePageState extends State<CompletePage> {
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     Text(
-                      "Mistakes: ${drivingData.ed.getMaxIntensityError()} ",
+                      "Max intensity misteakes: ${drivingData.ed.getMaxIntensityError()} ",
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     Text(
