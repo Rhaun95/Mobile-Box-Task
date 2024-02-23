@@ -3,7 +3,9 @@ class EvaluationData {
   String totalElapsedTime = "";
   List<int> drtTimes = [];
   String meanDRT = "";
-  List<String> exceedsBoxFrame = [];
+  Map<int, String> exceedsBoxFrame = {};
+
+  double maxIntensityError = 0.00;
 
   int getCountDRT() {
     return countDRT;
@@ -21,12 +23,20 @@ class EvaluationData {
     return meanDRT;
   }
 
-  List<String> getExceedsBoxFrame() {
+  Map<int, String> getExceedsBoxFrame() {
     return exceedsBoxFrame;
   }
 
-  void setExceedsBoxFrame(String time) {
-    exceedsBoxFrame.add(time);
+  double getMaxIntensityError() {
+    return maxIntensityError;
+  }
+
+  void setMaxIntensityError(double intensityError) {
+    maxIntensityError = intensityError;
+  }
+
+  void setExceedsBoxFrame(int errorNumber, String time) {
+    exceedsBoxFrame[errorNumber] = time;
   }
 
   void setTotalElapsedTime(String totalElapsedTime) {

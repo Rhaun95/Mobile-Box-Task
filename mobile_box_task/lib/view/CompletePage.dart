@@ -40,7 +40,8 @@ class _CompletePageState extends State<CompletePage> {
   @override
   Widget build(BuildContext context) {
     DrivingHelper drivingData = Provider.of<DrivingHelper>(context);
-    print(drivingData.toJson());
+    //print(drivingData.toJson());
+    drivingData.convertDataToJsonAndsendTojson();
 
     return MaterialApp(
       home: Scaffold(
@@ -77,6 +78,10 @@ class _CompletePageState extends State<CompletePage> {
                       ),
                     Text(
                       "Mistakes: ${drivingData.ed.getExceedsBoxFrame().length} ",
+                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    Text(
+                      "Mistakes: ${drivingData.ed.getMaxIntensityError()} ",
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     Text(

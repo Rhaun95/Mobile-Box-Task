@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -60,35 +62,42 @@ class DrivingHelper extends ChangeNotifier {
     ed.setTotalElapsedTime(formatDuration(stopwatch.elapsed));
   }
 
-  // Future<void> convertDataToJsonAndsendTojson() async {
-  //   List<dynamic> data = [
-  //     ed.getCountDRT(),
-  //     ed.getMeanDRT(),
-  //     ed.getTotalElapsedTime()
-  //   ];
+  Future<void> convertDataToJsonAndsendTojson() async {
+    List<dynamic> data = [
+      roomName,
+      ed.getCountDRT(),
+      ed.getMeanDRT(),
+      ed.getTotalElapsedTime(),
+      ed.getMaxIntensityError(),
+      ed.getDrtTimes(),
+    ];
 
-  //   var json_data = {
-  //     "countDRT": data[0],
-  //     "meanDRT": data[1],
-  //     "totalElapsedTime": data[2],
-  //   };
+    var json_data = {
+      "RaumCode": data[0],
+      "countDRT": data[1],
+      "meanDRT": data[2],
+      "totalElapsedTime": data[3],
+      "maxIntensityError": data[4],
+      "drtTimes": data[5],
+    };
 
-  //   try {
-  //     final file = File('mobile_box_task/jsonFile/DataToserver.json');
-  //     await file.writeAsString(json.encode(json_data));
-  //     print("Data written to file successfully.");
-  //   } catch (e) {
-  //     print("Error writing to file: $e");
-  //   }
+    try {
+      final file = File(
+          'G:\\programm\\MBT\\bp2324-mobile-box-task\\mobile_box_task\\assets\\data.json');
+      await file.writeAsString(json.encode(json_data));
+      print("Data written to file successfully.");
+    } catch (e) {
+      print("Error writing to file: $e");
+    }
 
-  //   print("ja wir kommen von hier vorbei");
-  // }
+    print("ja wir kommen von hier vorbei habibi");
+  }
 
-  Map<String, dynamic> toJson() => {
-        'countDRT': (ed.getCountDRT()).toString(),
-        'meanDRT': ed.getMeanDRT(),
-        'elapsedTime': ed.getTotalElapsedTime(),
-      };
+  // Map<String, dynamic> toJson() => {
+  //       'countDRT': (ed.getCountDRT()).toString(),
+  //       'meanDRT': ed.getMeanDRT(),
+  //       'elapsedTime': ed.getTotalElapsedTime(),
+  //     };
 
 //   void _generateJsonFile(String username) {
 //   if (username != null) {
