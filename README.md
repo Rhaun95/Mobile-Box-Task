@@ -1,16 +1,19 @@
 # 🟩 Mobile Box Task
 
 ## Agenda
-[1. Kurzfassung](#kurzfassung) </br>
+[1. Motivation](#motivation) </br>
 [2. Implementierung](#implementierung)</br>
 [3. Ausprobieren](#ausprobieren)
 
 
-## 🎯 Kurzfassung
+## 🎯 Motivation
 
 Box Task in der mobilen Umsetzung.
 
-Box Task ([Link zum Artikel](https://www.sciencedirect.com/science/article/pii/S2215016121000546)) ist eine Evaluationsmethode für die Messung der Ablenkung von In-Vehicle Information Systems (Displays) beim Fahren. Die Hauptaufgabe (Fahren) wird durch eine alternative Aufgabe ersetzt, bei der eine Box zwischen zwei Rahmen gehalten wird. Die Box ändert ihre Größe und Position in Abhängigkeit der Beschleunigung und Lenkung des Nutzenden.
+Box Task ([Link zum Artikel](https://www.sciencedirect.com/science/article/pii/S2215016121000546)) ist eine Evaluationsmethode für die Messung der Ablenkung von In-Vehicle Information Systems (Displays) beim Fahren. Die Hauptaufgabe (Fahren) wird durch eine alternative Aufgabe ersetzt, bei der eine Box zwischen zwei Rahmen gehalten wird. Die Box ändert ihre Größe und Position in Abhängigkeit der Beschleunigung und Lenkung des Nutzenden. </br></br>
+Derzeit erfordert die Durchführung der Studie, dass die Teilnehmer das Labor aufsuchen müssen, da ein spezifisches Setup notwendig ist. 
+Zudem ist tendenziell kostenintensiv, da keine gleichzeitige Durchführung möglich ist.
+Das Projekt realisiert die Methode im mobilen Umfeld. Dies ermöglicht eine Kostenreduzierung und höhere Flexibilität, die zu einer höheren Teilnehmeranzahl der Studie beitragen könnte.
 
 ## 🕍 Implementierung
 
